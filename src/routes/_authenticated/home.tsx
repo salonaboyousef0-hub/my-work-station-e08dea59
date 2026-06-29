@@ -84,6 +84,20 @@ function HomePage() {
           </Link>
         </div>
 
+        {isStaff && (
+          <Link to="/admin" className="bg-gradient-gold text-white rounded-2xl shadow-elevated p-4 flex items-center gap-3">
+            <div className="size-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+              <ShieldCheck className="size-6" />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold">لوحة الإدارة</p>
+              <p className="text-xs opacity-90">دخول كصلاحية {roles.includes("admin") ? "Admin" : "Manager"}</p>
+            </div>
+            <ArrowLeft className="size-5" />
+          </Link>
+        )}
+
+
         {/* Attendance stats */}
         <div className="grid grid-cols-2 gap-3">
           <StatCard icon={<CheckCircle2 className="size-5" />} label="أيام الحضور" value={presentDays} tone="success" />
