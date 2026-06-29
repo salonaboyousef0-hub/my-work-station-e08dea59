@@ -12,12 +12,21 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
+import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
+import { Route as AuthenticatedServiceLogRouteImport } from './routes/_authenticated/service-log'
 import { Route as AuthenticatedRequestsRouteImport } from './routes/_authenticated/requests'
 import { Route as AuthenticatedPerformanceRouteImport } from './routes/_authenticated/performance'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as AuthenticatedMoreRouteImport } from './routes/_authenticated/more'
+import { Route as AuthenticatedLeaveRouteImport } from './routes/_authenticated/leave'
 import { Route as AuthenticatedHomeRouteImport } from './routes/_authenticated/home'
+import { Route as AuthenticatedGoalsRouteImport } from './routes/_authenticated/goals'
 import { Route as AuthenticatedFinancialRouteImport } from './routes/_authenticated/financial'
+import { Route as AuthenticatedEvaluationsRouteImport } from './routes/_authenticated/evaluations'
 import { Route as AuthenticatedAttendanceRouteImport } from './routes/_authenticated/attendance'
+import { Route as AuthenticatedAssetsRouteImport } from './routes/_authenticated/assets'
+import { Route as AuthenticatedAnnouncementsRouteImport } from './routes/_authenticated/announcements'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -32,6 +41,21 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedTrainingRoute = AuthenticatedTrainingRouteImport.update({
+  id: '/training',
+  path: '/training',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedShiftsRoute = AuthenticatedShiftsRouteImport.update({
+  id: '/shifts',
+  path: '/shifts',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedServiceLogRoute = AuthenticatedServiceLogRouteImport.update({
+  id: '/service-log',
+  path: '/service-log',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRequestsRoute = AuthenticatedRequestsRouteImport.update({
   id: '/requests',
@@ -50,9 +74,24 @@ const AuthenticatedNotificationsRoute =
     path: '/notifications',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMoreRoute = AuthenticatedMoreRouteImport.update({
+  id: '/more',
+  path: '/more',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedLeaveRoute = AuthenticatedLeaveRouteImport.update({
+  id: '/leave',
+  path: '/leave',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedHomeRoute = AuthenticatedHomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedGoalsRoute = AuthenticatedGoalsRouteImport.update({
+  id: '/goals',
+  path: '/goals',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedFinancialRoute = AuthenticatedFinancialRouteImport.update({
@@ -60,76 +99,147 @@ const AuthenticatedFinancialRoute = AuthenticatedFinancialRouteImport.update({
   path: '/financial',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedEvaluationsRoute =
+  AuthenticatedEvaluationsRouteImport.update({
+    id: '/evaluations',
+    path: '/evaluations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedAttendanceRoute = AuthenticatedAttendanceRouteImport.update({
   id: '/attendance',
   path: '/attendance',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAssetsRoute = AuthenticatedAssetsRouteImport.update({
+  id: '/assets',
+  path: '/assets',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAnnouncementsRoute =
+  AuthenticatedAnnouncementsRouteImport.update({
+    id: '/announcements',
+    path: '/announcements',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/announcements': typeof AuthenticatedAnnouncementsRoute
+  '/assets': typeof AuthenticatedAssetsRoute
   '/attendance': typeof AuthenticatedAttendanceRoute
+  '/evaluations': typeof AuthenticatedEvaluationsRoute
   '/financial': typeof AuthenticatedFinancialRoute
+  '/goals': typeof AuthenticatedGoalsRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/leave': typeof AuthenticatedLeaveRoute
+  '/more': typeof AuthenticatedMoreRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/performance': typeof AuthenticatedPerformanceRoute
   '/requests': typeof AuthenticatedRequestsRoute
+  '/service-log': typeof AuthenticatedServiceLogRoute
+  '/shifts': typeof AuthenticatedShiftsRoute
+  '/training': typeof AuthenticatedTrainingRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/announcements': typeof AuthenticatedAnnouncementsRoute
+  '/assets': typeof AuthenticatedAssetsRoute
   '/attendance': typeof AuthenticatedAttendanceRoute
+  '/evaluations': typeof AuthenticatedEvaluationsRoute
   '/financial': typeof AuthenticatedFinancialRoute
+  '/goals': typeof AuthenticatedGoalsRoute
   '/home': typeof AuthenticatedHomeRoute
+  '/leave': typeof AuthenticatedLeaveRoute
+  '/more': typeof AuthenticatedMoreRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/performance': typeof AuthenticatedPerformanceRoute
   '/requests': typeof AuthenticatedRequestsRoute
+  '/service-log': typeof AuthenticatedServiceLogRoute
+  '/shifts': typeof AuthenticatedShiftsRoute
+  '/training': typeof AuthenticatedTrainingRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/_authenticated/announcements': typeof AuthenticatedAnnouncementsRoute
+  '/_authenticated/assets': typeof AuthenticatedAssetsRoute
   '/_authenticated/attendance': typeof AuthenticatedAttendanceRoute
+  '/_authenticated/evaluations': typeof AuthenticatedEvaluationsRoute
   '/_authenticated/financial': typeof AuthenticatedFinancialRoute
+  '/_authenticated/goals': typeof AuthenticatedGoalsRoute
   '/_authenticated/home': typeof AuthenticatedHomeRoute
+  '/_authenticated/leave': typeof AuthenticatedLeaveRoute
+  '/_authenticated/more': typeof AuthenticatedMoreRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/performance': typeof AuthenticatedPerformanceRoute
   '/_authenticated/requests': typeof AuthenticatedRequestsRoute
+  '/_authenticated/service-log': typeof AuthenticatedServiceLogRoute
+  '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
+  '/_authenticated/training': typeof AuthenticatedTrainingRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/announcements'
+    | '/assets'
     | '/attendance'
+    | '/evaluations'
     | '/financial'
+    | '/goals'
     | '/home'
+    | '/leave'
+    | '/more'
     | '/notifications'
     | '/performance'
     | '/requests'
+    | '/service-log'
+    | '/shifts'
+    | '/training'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/announcements'
+    | '/assets'
     | '/attendance'
+    | '/evaluations'
     | '/financial'
+    | '/goals'
     | '/home'
+    | '/leave'
+    | '/more'
     | '/notifications'
     | '/performance'
     | '/requests'
+    | '/service-log'
+    | '/shifts'
+    | '/training'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/_authenticated/announcements'
+    | '/_authenticated/assets'
     | '/_authenticated/attendance'
+    | '/_authenticated/evaluations'
     | '/_authenticated/financial'
+    | '/_authenticated/goals'
     | '/_authenticated/home'
+    | '/_authenticated/leave'
+    | '/_authenticated/more'
     | '/_authenticated/notifications'
     | '/_authenticated/performance'
     | '/_authenticated/requests'
+    | '/_authenticated/service-log'
+    | '/_authenticated/shifts'
+    | '/_authenticated/training'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -161,6 +271,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/training': {
+      id: '/_authenticated/training'
+      path: '/training'
+      fullPath: '/training'
+      preLoaderRoute: typeof AuthenticatedTrainingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/shifts': {
+      id: '/_authenticated/shifts'
+      path: '/shifts'
+      fullPath: '/shifts'
+      preLoaderRoute: typeof AuthenticatedShiftsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/service-log': {
+      id: '/_authenticated/service-log'
+      path: '/service-log'
+      fullPath: '/service-log'
+      preLoaderRoute: typeof AuthenticatedServiceLogRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/requests': {
       id: '/_authenticated/requests'
       path: '/requests'
@@ -182,11 +313,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/more': {
+      id: '/_authenticated/more'
+      path: '/more'
+      fullPath: '/more'
+      preLoaderRoute: typeof AuthenticatedMoreRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/leave': {
+      id: '/_authenticated/leave'
+      path: '/leave'
+      fullPath: '/leave'
+      preLoaderRoute: typeof AuthenticatedLeaveRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/home': {
       id: '/_authenticated/home'
       path: '/home'
       fullPath: '/home'
       preLoaderRoute: typeof AuthenticatedHomeRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/goals': {
+      id: '/_authenticated/goals'
+      path: '/goals'
+      fullPath: '/goals'
+      preLoaderRoute: typeof AuthenticatedGoalsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/financial': {
@@ -196,6 +348,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedFinancialRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/evaluations': {
+      id: '/_authenticated/evaluations'
+      path: '/evaluations'
+      fullPath: '/evaluations'
+      preLoaderRoute: typeof AuthenticatedEvaluationsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/attendance': {
       id: '/_authenticated/attendance'
       path: '/attendance'
@@ -203,25 +362,57 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAttendanceRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/assets': {
+      id: '/_authenticated/assets'
+      path: '/assets'
+      fullPath: '/assets'
+      preLoaderRoute: typeof AuthenticatedAssetsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/announcements': {
+      id: '/_authenticated/announcements'
+      path: '/announcements'
+      fullPath: '/announcements'
+      preLoaderRoute: typeof AuthenticatedAnnouncementsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAnnouncementsRoute: typeof AuthenticatedAnnouncementsRoute
+  AuthenticatedAssetsRoute: typeof AuthenticatedAssetsRoute
   AuthenticatedAttendanceRoute: typeof AuthenticatedAttendanceRoute
+  AuthenticatedEvaluationsRoute: typeof AuthenticatedEvaluationsRoute
   AuthenticatedFinancialRoute: typeof AuthenticatedFinancialRoute
+  AuthenticatedGoalsRoute: typeof AuthenticatedGoalsRoute
   AuthenticatedHomeRoute: typeof AuthenticatedHomeRoute
+  AuthenticatedLeaveRoute: typeof AuthenticatedLeaveRoute
+  AuthenticatedMoreRoute: typeof AuthenticatedMoreRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedPerformanceRoute: typeof AuthenticatedPerformanceRoute
   AuthenticatedRequestsRoute: typeof AuthenticatedRequestsRoute
+  AuthenticatedServiceLogRoute: typeof AuthenticatedServiceLogRoute
+  AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
+  AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAnnouncementsRoute: AuthenticatedAnnouncementsRoute,
+  AuthenticatedAssetsRoute: AuthenticatedAssetsRoute,
   AuthenticatedAttendanceRoute: AuthenticatedAttendanceRoute,
+  AuthenticatedEvaluationsRoute: AuthenticatedEvaluationsRoute,
   AuthenticatedFinancialRoute: AuthenticatedFinancialRoute,
+  AuthenticatedGoalsRoute: AuthenticatedGoalsRoute,
   AuthenticatedHomeRoute: AuthenticatedHomeRoute,
+  AuthenticatedLeaveRoute: AuthenticatedLeaveRoute,
+  AuthenticatedMoreRoute: AuthenticatedMoreRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedPerformanceRoute: AuthenticatedPerformanceRoute,
   AuthenticatedRequestsRoute: AuthenticatedRequestsRoute,
+  AuthenticatedServiceLogRoute: AuthenticatedServiceLogRoute,
+  AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
+  AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
