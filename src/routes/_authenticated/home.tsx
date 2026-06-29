@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { LogOut, Bell, Wallet, CheckCircle2, XCircle, ArrowLeft } from "lucide-react";
+import { LogOut, Bell, Wallet, CheckCircle2, XCircle, ArrowLeft, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { getMyProfile, getMonthAttendanceStats, getTransactions, getNotifications } from "@/lib/queries";
+import { getMyProfile, getMonthAttendanceStats, getTransactions, getNotifications, getMyRoles } from "@/lib/queries";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/home")({
