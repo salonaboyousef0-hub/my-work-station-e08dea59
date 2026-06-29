@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          body: string
+          category: string
+          created_at: string
+          created_by: string | null
+          id: string
+          published_at: string
+          title: string
+        }
+        Insert: {
+          body: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          published_at?: string
+          title: string
+        }
+        Update: {
+          body?: string
+          category?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          published_at?: string
+          title?: string
+        }
+        Relationships: []
+      }
       attendance: {
         Row: {
           check_in: string
@@ -57,6 +87,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "attendance_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_assets: {
+        Row: {
+          asset_name: string
+          condition: string
+          created_at: string
+          employee_id: string
+          id: string
+          notes: string | null
+          received_date: string
+          returned_date: string | null
+          serial_number: string | null
+        }
+        Insert: {
+          asset_name: string
+          condition?: string
+          created_at?: string
+          employee_id: string
+          id?: string
+          notes?: string | null
+          received_date?: string
+          returned_date?: string | null
+          serial_number?: string | null
+        }
+        Update: {
+          asset_name?: string
+          condition?: string
+          created_at?: string
+          employee_id?: string
+          id?: string
+          notes?: string | null
+          received_date?: string
+          returned_date?: string | null
+          serial_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_assets_employee_id_fkey"
             columns: ["employee_id"]
             isOneToOne: false
             referencedRelation: "employee_profiles"
@@ -152,34 +226,46 @@ export type Database = {
       }
       employee_services: {
         Row: {
+          admin_notes: string | null
           client_count: number
           created_at: string
           employee_id: string
           id: string
           notes: string | null
+          reviewed_at: string | null
           service_date: string
           service_name: string
           service_value: number
+          status: Database["public"]["Enums"]["request_status"]
+          submitted_by_employee: boolean
         }
         Insert: {
+          admin_notes?: string | null
           client_count?: number
           created_at?: string
           employee_id: string
           id?: string
           notes?: string | null
+          reviewed_at?: string | null
           service_date?: string
           service_name: string
           service_value?: number
+          status?: Database["public"]["Enums"]["request_status"]
+          submitted_by_employee?: boolean
         }
         Update: {
+          admin_notes?: string | null
           client_count?: number
           created_at?: string
           employee_id?: string
           id?: string
           notes?: string | null
+          reviewed_at?: string | null
           service_date?: string
           service_name?: string
           service_value?: number
+          status?: Database["public"]["Enums"]["request_status"]
+          submitted_by_employee?: boolean
         }
         Relationships: [
           {
@@ -229,6 +315,194 @@ export type Database = {
           },
         ]
       }
+      evaluations: {
+        Row: {
+          attitude: number
+          commitment: number
+          created_at: string
+          customer_satisfaction: number
+          employee_id: string
+          evaluator_id: string | null
+          hygiene: number
+          id: string
+          notes: string | null
+          period_month: string
+          quality: number
+        }
+        Insert: {
+          attitude: number
+          commitment: number
+          created_at?: string
+          customer_satisfaction: number
+          employee_id: string
+          evaluator_id?: string | null
+          hygiene: number
+          id?: string
+          notes?: string | null
+          period_month: string
+          quality: number
+        }
+        Update: {
+          attitude?: number
+          commitment?: number
+          created_at?: string
+          customer_satisfaction?: number
+          employee_id?: string
+          evaluator_id?: string | null
+          hygiene?: number
+          id?: string
+          notes?: string | null
+          period_month?: string
+          quality?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "evaluations_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      general_requests: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          details: string | null
+          employee_id: string
+          id: string
+          request_type: string
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: Database["public"]["Enums"]["request_status"]
+          title: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          details?: string | null
+          employee_id: string
+          id?: string
+          request_type: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["request_status"]
+          title: string
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          details?: string | null
+          employee_id?: string
+          id?: string
+          request_type?: string
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: Database["public"]["Enums"]["request_status"]
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "general_requests_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      goals: {
+        Row: {
+          bonus_amount: number
+          created_at: string
+          description: string | null
+          employee_id: string
+          id: string
+          period_month: string
+          target_services: number
+          target_value: number
+        }
+        Insert: {
+          bonus_amount?: number
+          created_at?: string
+          description?: string | null
+          employee_id: string
+          id?: string
+          period_month: string
+          target_services?: number
+          target_value?: number
+        }
+        Update: {
+          bonus_amount?: number
+          created_at?: string
+          description?: string | null
+          employee_id?: string
+          id?: string
+          period_month?: string
+          target_services?: number
+          target_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goals_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leave_requests: {
+        Row: {
+          admin_notes: string | null
+          created_at: string
+          employee_id: string
+          end_date: string
+          id: string
+          leave_type: Database["public"]["Enums"]["leave_type"]
+          reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          start_date: string
+          status: Database["public"]["Enums"]["request_status"]
+        }
+        Insert: {
+          admin_notes?: string | null
+          created_at?: string
+          employee_id: string
+          end_date: string
+          id?: string
+          leave_type: Database["public"]["Enums"]["leave_type"]
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          start_date: string
+          status?: Database["public"]["Enums"]["request_status"]
+        }
+        Update: {
+          admin_notes?: string | null
+          created_at?: string
+          employee_id?: string
+          end_date?: string
+          id?: string
+          leave_type?: Database["public"]["Enums"]["leave_type"]
+          reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          start_date?: string
+          status?: Database["public"]["Enums"]["request_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leave_requests_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           body: string | null
@@ -267,14 +541,154 @@ export type Database = {
           },
         ]
       }
+      shifts: {
+        Row: {
+          created_at: string
+          employee_id: string
+          end_time: string | null
+          id: string
+          is_day_off: boolean
+          notes: string | null
+          shift_date: string
+          start_time: string | null
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          end_time?: string | null
+          id?: string
+          is_day_off?: boolean
+          notes?: string | null
+          shift_date: string
+          start_time?: string | null
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          end_time?: string | null
+          id?: string
+          is_day_off?: boolean
+          notes?: string | null
+          shift_date?: string
+          start_time?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shifts_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_materials: {
+        Row: {
+          content: string | null
+          created_at: string
+          description: string | null
+          id: string
+          is_required: boolean
+          media_type: string
+          media_url: string | null
+          title: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_required?: boolean
+          media_type?: string
+          media_url?: string | null
+          title: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_required?: boolean
+          media_type?: string
+          media_url?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      training_progress: {
+        Row: {
+          completed_at: string
+          employee_id: string
+          id: string
+          material_id: string
+        }
+        Insert: {
+          completed_at?: string
+          employee_id: string
+          id?: string
+          material_id: string
+        }
+        Update: {
+          completed_at?: string
+          employee_id?: string
+          id?: string
+          material_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_progress_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "training_progress_material_id_fkey"
+            columns: ["material_id"]
+            isOneToOne: false
+            referencedRelation: "training_materials"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
+      app_role: "admin" | "manager" | "employee"
+      leave_type: "vacation" | "sick" | "personal" | "other"
       notification_type: "request" | "transaction" | "announcement" | "system"
       request_status: "pending" | "approved" | "rejected"
       request_type: "advance" | "leave" | "other"
@@ -406,6 +820,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "manager", "employee"],
+      leave_type: ["vacation", "sick", "personal", "other"],
       notification_type: ["request", "transaction", "announcement", "system"],
       request_status: ["pending", "approved", "rejected"],
       request_type: ["advance", "leave", "other"],

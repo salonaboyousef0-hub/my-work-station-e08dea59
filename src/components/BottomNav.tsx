@@ -1,12 +1,12 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Home, Clock, Wallet, BarChart3, Inbox } from "lucide-react";
+import { Home, Clock, Megaphone, Inbox, LayoutGrid } from "lucide-react";
 
 const items = [
   { to: "/home", label: "الرئيسية", icon: Home },
   { to: "/attendance", label: "الحضور", icon: Clock },
-  { to: "/financial", label: "حسابي", icon: Wallet },
-  { to: "/performance", label: "الأداء", icon: BarChart3 },
+  { to: "/announcements", label: "إعلانات", icon: Megaphone },
   { to: "/requests", label: "الطلبات", icon: Inbox },
+  { to: "/more", label: "المزيد", icon: LayoutGrid },
 ] as const;
 
 export function BottomNav() {
@@ -18,15 +18,9 @@ export function BottomNav() {
           const active = pathname === to || (to !== "/home" && pathname.startsWith(to));
           return (
             <li key={to}>
-              <Link
-                to={to}
-                className={`flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium transition ${
-                  active ? "text-primary" : "text-muted-foreground"
-                }`}
-              >
-                <div className={`size-10 rounded-xl flex items-center justify-center transition ${
-                  active ? "bg-primary/10" : ""
-                }`}>
+              <Link to={to}
+                className={`flex flex-col items-center justify-center gap-1 py-2.5 text-[11px] font-medium transition ${active ? "text-primary" : "text-muted-foreground"}`}>
+                <div className={`size-10 rounded-xl flex items-center justify-center transition ${active ? "bg-primary/10" : ""}`}>
                   <Icon className="size-5" />
                 </div>
                 {label}
