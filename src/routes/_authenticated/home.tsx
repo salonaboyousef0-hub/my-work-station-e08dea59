@@ -17,6 +17,8 @@ function HomePage() {
   const { data: att = [] } = useQuery({ queryKey: ["att-month"], queryFn: getMonthAttendanceStats });
   const { data: tx = [] } = useQuery({ queryKey: ["tx"], queryFn: getTransactions });
   const { data: notifs = [] } = useQuery({ queryKey: ["notifs"], queryFn: getNotifications });
+  const { data: roles = [] } = useQuery({ queryKey: ["my-roles"], queryFn: getMyRoles });
+  const isStaff = roles.includes("admin") || roles.includes("manager");
 
   const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
   const todayDay = new Date().getDate();
