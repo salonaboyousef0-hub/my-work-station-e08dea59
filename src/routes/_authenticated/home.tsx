@@ -1,8 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { LogOut, Bell, Wallet, CheckCircle2, XCircle, ArrowLeft } from "lucide-react";
+import { LogOut, Bell, Wallet, CheckCircle2, XCircle, ArrowLeft, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { getMyProfile, getMonthAttendanceStats, getTransactions, getNotifications } from "@/lib/queries";
+import { getMyProfile, getMonthAttendanceStats, getTransactions, getNotifications, getMyRoles } from "@/lib/queries";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/home")({
@@ -17,6 +17,8 @@ function HomePage() {
   const { data: att = [] } = useQuery({ queryKey: ["att-month"], queryFn: getMonthAttendanceStats });
   const { data: tx = [] } = useQuery({ queryKey: ["tx"], queryFn: getTransactions });
   const { data: notifs = [] } = useQuery({ queryKey: ["notifs"], queryFn: getNotifications });
+  const { data: roles = [] } = useQuery({ queryKey: ["my-roles"], queryFn: getMyRoles });
+  const isStaff = roles.includes("admin") || roles.includes("manager");
 
   const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
   const todayDay = new Date().getDate();
@@ -81,6 +83,20 @@ function HomePage() {
             عرض التفاصيل <ArrowLeft className="size-4" />
           </Link>
         </div>
+
+        {isStaff && (
+          <Link to="/admin" className="bg-gradient-gold text-white rounded-2xl shadow-elevated p-4 flex items-center gap-3">
+            <div className="size-12 rounded-xl bg-white/20 backdrop-blur flex items-center justify-center">
+              <ShieldCheck className="size-6" />
+            </div>
+            <div className="flex-1">
+              <p className="font-bold">لوحة الإدارة</p>
+              <p className="text-xs opacity-90">دخول كصلاحية {roles.includes("admin") ? "Admin" : "Manager"}</p>
+            </div>
+            <ArrowLeft className="size-5" />
+          </Link>
+        )}
+
 
         {/* Attendance stats */}
         <div className="grid grid-cols-2 gap-3">
