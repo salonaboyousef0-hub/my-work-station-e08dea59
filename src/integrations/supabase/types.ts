@@ -14,7 +14,259 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      attendance: {
+        Row: {
+          check_in: string
+          check_in_lat: number | null
+          check_in_lng: number | null
+          check_out: string | null
+          check_out_lat: number | null
+          check_out_lng: number | null
+          created_at: string
+          employee_id: string
+          id: string
+          notes: string | null
+          work_date: string
+        }
+        Insert: {
+          check_in?: string
+          check_in_lat?: number | null
+          check_in_lng?: number | null
+          check_out?: string | null
+          check_out_lat?: number | null
+          check_out_lng?: number | null
+          created_at?: string
+          employee_id: string
+          id?: string
+          notes?: string | null
+          work_date?: string
+        }
+        Update: {
+          check_in?: string
+          check_in_lat?: number | null
+          check_in_lng?: number | null
+          check_out?: string | null
+          check_out_lat?: number | null
+          check_out_lng?: number | null
+          created_at?: string
+          employee_id?: string
+          id?: string
+          notes?: string | null
+          work_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attendance_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_profiles: {
+        Row: {
+          avatar_url: string | null
+          balance: number
+          created_at: string
+          employee_code: string
+          full_name: string
+          hire_date: string | null
+          id: string
+          is_active: boolean
+          job_title: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          balance?: number
+          created_at?: string
+          employee_code?: string
+          full_name?: string
+          hire_date?: string | null
+          id: string
+          is_active?: boolean
+          job_title?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          balance?: number
+          created_at?: string
+          employee_code?: string
+          full_name?: string
+          hire_date?: string | null
+          id?: string
+          is_active?: boolean
+          job_title?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      employee_requests: {
+        Row: {
+          admin_notes: string | null
+          amount: number | null
+          created_at: string
+          description: string | null
+          employee_id: string
+          id: string
+          reviewed_at: string | null
+          status: Database["public"]["Enums"]["request_status"]
+          type: Database["public"]["Enums"]["request_type"]
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount?: number | null
+          created_at?: string
+          description?: string | null
+          employee_id: string
+          id?: string
+          reviewed_at?: string | null
+          status?: Database["public"]["Enums"]["request_status"]
+          type: Database["public"]["Enums"]["request_type"]
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number | null
+          created_at?: string
+          description?: string | null
+          employee_id?: string
+          id?: string
+          reviewed_at?: string | null
+          status?: Database["public"]["Enums"]["request_status"]
+          type?: Database["public"]["Enums"]["request_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_requests_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_services: {
+        Row: {
+          client_count: number
+          created_at: string
+          employee_id: string
+          id: string
+          notes: string | null
+          service_date: string
+          service_name: string
+          service_value: number
+        }
+        Insert: {
+          client_count?: number
+          created_at?: string
+          employee_id: string
+          id?: string
+          notes?: string | null
+          service_date?: string
+          service_name: string
+          service_value?: number
+        }
+        Update: {
+          client_count?: number
+          created_at?: string
+          employee_id?: string
+          id?: string
+          notes?: string | null
+          service_date?: string
+          service_name?: string
+          service_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_services_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      employee_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          employee_id: string
+          id: string
+          notes: string | null
+          transaction_date: string
+          type: Database["public"]["Enums"]["transaction_type"]
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          employee_id: string
+          id?: string
+          notes?: string | null
+          transaction_date?: string
+          type: Database["public"]["Enums"]["transaction_type"]
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          employee_id?: string
+          id?: string
+          notes?: string | null
+          transaction_date?: string
+          type?: Database["public"]["Enums"]["transaction_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_transactions_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          employee_id: string
+          id: string
+          is_read: boolean
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          employee_id: string
+          id?: string
+          is_read?: boolean
+          title: string
+          type?: Database["public"]["Enums"]["notification_type"]
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          employee_id?: string
+          id?: string
+          is_read?: boolean
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +275,10 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      notification_type: "request" | "transaction" | "announcement" | "system"
+      request_status: "pending" | "approved" | "rejected"
+      request_type: "advance" | "leave" | "other"
+      transaction_type: "earning" | "advance" | "deduction" | "payment"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +405,11 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      notification_type: ["request", "transaction", "announcement", "system"],
+      request_status: ["pending", "approved", "rejected"],
+      request_type: ["advance", "leave", "other"],
+      transaction_type: ["earning", "advance", "deduction", "payment"],
+    },
   },
 } as const
