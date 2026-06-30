@@ -41,12 +41,12 @@ function AuthPage() {
         });
         if (error) throw error;
         toast.success("تم إنشاء الحساب بنجاح");
-        navigate({ to: "/home", replace: true });
+        await routeAfterAuth(navigate);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("تم تسجيل الدخول");
-        navigate({ to: "/home", replace: true });
+        await routeAfterAuth(navigate);
       }
     } catch (err: any) {
       const msg = err?.message ?? "حدث خطأ";
