@@ -22,9 +22,17 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) navigate({ to: "/home", replace: true });
+      if (data.user) routeAfterAuth(navigate);
     });
   }, [navigate]);
+
+  async function routeAfterAuth(nav: typeof navigate) {
+    const { data: u } = await supabase.auth.getUser();
+    if (!u.user) return nav({ to: "/auth", replace: true });
+    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
+    const isStaff = (roles ?? []).some((r: any) => r.role === "admin" || r.role === "manager");
+    nav({ to: isStaff ? "/admin" : "/home", replace: true });
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -41,12 +49,12 @@ function AuthPage() {
         });
         if (error) throw error;
         toast.success("تم إنشاء الحساب بنجاح");
-        navigate({ to: "/home", replace: true });
+        await routeAfterAuth(navigate);
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("تم تسجيل الدخول");
-        navigate({ to: "/home", replace: true });
+        await routeAfterAuth(navigate);
       }
     } catch (err: any) {
       const msg = err?.message ?? "حدث خطأ";
