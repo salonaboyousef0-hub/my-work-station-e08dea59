@@ -28,11 +28,16 @@ function AuthPage() {
 
   async function routeAfterAuth(nav: typeof navigate) {
     const { data: u } = await supabase.auth.getUser();
+    console.log("[auth] user after login:", u.user?.id, u.user?.email);
     if (!u.user) return nav({ to: "/auth", replace: true });
-    const { data: roles } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
+    const { data: roles, error } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
+    console.log("[auth] roles query:", { roles, error });
     const isStaff = (roles ?? []).some((r: any) => r.role === "admin" || r.role === "manager");
-    nav({ to: isStaff ? "/admin" : "/home", replace: true });
+    const target = isStaff ? "/admin" : "/home";
+    console.log("[auth] redirecting to:", target);
+    nav({ to: target, replace: true });
   }
+
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
