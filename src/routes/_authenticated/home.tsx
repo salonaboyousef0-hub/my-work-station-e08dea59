@@ -21,6 +21,11 @@ function HomePage() {
   const { data: roles = [] } = useQuery({ queryKey: ["my-roles"], queryFn: getMyRoles });
   const isStaff = roles.includes("admin") || roles.includes("manager");
 
+  useEffect(() => {
+    if (isStaff) navigate({ to: "/admin", replace: true });
+  }, [isStaff, navigate]);
+
+
   const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
   const todayDay = new Date().getDate();
   const presentDays = att.length;
