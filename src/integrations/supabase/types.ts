@@ -79,39 +79,48 @@ export type Database = {
           check_in: string
           check_in_lat: number | null
           check_in_lng: number | null
+          check_in_source: string | null
           check_out: string | null
           check_out_lat: number | null
           check_out_lng: number | null
+          check_out_source: string | null
           created_at: string
           employee_id: string
           id: string
           notes: string | null
+          qr_token_id: string | null
           work_date: string
         }
         Insert: {
           check_in?: string
           check_in_lat?: number | null
           check_in_lng?: number | null
+          check_in_source?: string | null
           check_out?: string | null
           check_out_lat?: number | null
           check_out_lng?: number | null
+          check_out_source?: string | null
           created_at?: string
           employee_id: string
           id?: string
           notes?: string | null
+          qr_token_id?: string | null
           work_date?: string
         }
         Update: {
           check_in?: string
           check_in_lat?: number | null
           check_in_lng?: number | null
+          check_in_source?: string | null
           check_out?: string | null
           check_out_lat?: number | null
           check_out_lng?: number | null
+          check_out_source?: string | null
           created_at?: string
           employee_id?: string
           id?: string
           notes?: string | null
+          qr_token_id?: string | null
           work_date?: string
         }
         Relationships: [
@@ -122,7 +131,47 @@ export type Database = {
             referencedRelation: "employee_profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "attendance_qr_token_id_fkey"
+            columns: ["qr_token_id"]
+            isOneToOne: false
+            referencedRelation: "attendance_qr_tokens"
+            referencedColumns: ["id"]
+          },
         ]
+      }
+      attendance_qr_tokens: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          label: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          label: string
+          token: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          label?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       employee_assets: {
         Row: {
