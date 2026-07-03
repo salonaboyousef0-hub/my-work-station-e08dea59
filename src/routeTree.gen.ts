@@ -15,6 +15,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
 import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
 import { Route as AuthenticatedServiceLogRouteImport } from './routes/_authenticated/service-log'
+import { Route as AuthenticatedScanRouteImport } from './routes/_authenticated/scan'
 import { Route as AuthenticatedRequestsRouteImport } from './routes/_authenticated/requests'
 import { Route as AuthenticatedPerformanceRouteImport } from './routes/_authenticated/performance'
 import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
@@ -31,6 +32,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminShiftsRouteImport } from './routes/_authenticated/admin.shifts'
 import { Route as AuthenticatedAdminRequestsRouteImport } from './routes/_authenticated/admin.requests'
+import { Route as AuthenticatedAdminQrRouteImport } from './routes/_authenticated/admin.qr'
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
 import { Route as AuthenticatedAdminEmployeesRouteImport } from './routes/_authenticated/admin.employees'
 import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin.content'
@@ -63,6 +65,11 @@ const AuthenticatedShiftsRoute = AuthenticatedShiftsRouteImport.update({
 const AuthenticatedServiceLogRoute = AuthenticatedServiceLogRouteImport.update({
   id: '/service-log',
   path: '/service-log',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedScanRoute = AuthenticatedScanRouteImport.update({
+  id: '/scan',
+  path: '/scan',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedRequestsRoute = AuthenticatedRequestsRouteImport.update({
@@ -151,6 +158,11 @@ const AuthenticatedAdminRequestsRoute =
     path: '/requests',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminQrRoute = AuthenticatedAdminQrRouteImport.update({
+  id: '/qr',
+  path: '/qr',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminFinanceRoute =
   AuthenticatedAdminFinanceRouteImport.update({
     id: '/finance',
@@ -192,6 +204,7 @@ export interface FileRoutesByFullPath {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/performance': typeof AuthenticatedPerformanceRoute
   '/requests': typeof AuthenticatedRequestsRoute
+  '/scan': typeof AuthenticatedScanRoute
   '/service-log': typeof AuthenticatedServiceLogRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/training': typeof AuthenticatedTrainingRoute
@@ -199,6 +212,7 @@ export interface FileRoutesByFullPath {
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/admin/qr': typeof AuthenticatedAdminQrRoute
   '/admin/requests': typeof AuthenticatedAdminRequestsRoute
   '/admin/shifts': typeof AuthenticatedAdminShiftsRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -218,6 +232,7 @@ export interface FileRoutesByTo {
   '/notifications': typeof AuthenticatedNotificationsRoute
   '/performance': typeof AuthenticatedPerformanceRoute
   '/requests': typeof AuthenticatedRequestsRoute
+  '/scan': typeof AuthenticatedScanRoute
   '/service-log': typeof AuthenticatedServiceLogRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/training': typeof AuthenticatedTrainingRoute
@@ -225,6 +240,7 @@ export interface FileRoutesByTo {
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/admin/qr': typeof AuthenticatedAdminQrRoute
   '/admin/requests': typeof AuthenticatedAdminRequestsRoute
   '/admin/shifts': typeof AuthenticatedAdminShiftsRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -247,6 +263,7 @@ export interface FileRoutesById {
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
   '/_authenticated/performance': typeof AuthenticatedPerformanceRoute
   '/_authenticated/requests': typeof AuthenticatedRequestsRoute
+  '/_authenticated/scan': typeof AuthenticatedScanRoute
   '/_authenticated/service-log': typeof AuthenticatedServiceLogRoute
   '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
@@ -254,6 +271,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/content': typeof AuthenticatedAdminContentRoute
   '/_authenticated/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/_authenticated/admin/qr': typeof AuthenticatedAdminQrRoute
   '/_authenticated/admin/requests': typeof AuthenticatedAdminRequestsRoute
   '/_authenticated/admin/shifts': typeof AuthenticatedAdminShiftsRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -276,6 +294,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/performance'
     | '/requests'
+    | '/scan'
     | '/service-log'
     | '/shifts'
     | '/training'
@@ -283,6 +302,7 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/employees'
     | '/admin/finance'
+    | '/admin/qr'
     | '/admin/requests'
     | '/admin/shifts'
     | '/admin/'
@@ -302,6 +322,7 @@ export interface FileRouteTypes {
     | '/notifications'
     | '/performance'
     | '/requests'
+    | '/scan'
     | '/service-log'
     | '/shifts'
     | '/training'
@@ -309,6 +330,7 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/employees'
     | '/admin/finance'
+    | '/admin/qr'
     | '/admin/requests'
     | '/admin/shifts'
     | '/admin'
@@ -330,6 +352,7 @@ export interface FileRouteTypes {
     | '/_authenticated/notifications'
     | '/_authenticated/performance'
     | '/_authenticated/requests'
+    | '/_authenticated/scan'
     | '/_authenticated/service-log'
     | '/_authenticated/shifts'
     | '/_authenticated/training'
@@ -337,6 +360,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/content'
     | '/_authenticated/admin/employees'
     | '/_authenticated/admin/finance'
+    | '/_authenticated/admin/qr'
     | '/_authenticated/admin/requests'
     | '/_authenticated/admin/shifts'
     | '/_authenticated/admin/'
@@ -390,6 +414,13 @@ declare module '@tanstack/react-router' {
       path: '/service-log'
       fullPath: '/service-log'
       preLoaderRoute: typeof AuthenticatedServiceLogRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/scan': {
+      id: '/_authenticated/scan'
+      path: '/scan'
+      fullPath: '/scan'
+      preLoaderRoute: typeof AuthenticatedScanRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/requests': {
@@ -504,6 +535,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRequestsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/qr': {
+      id: '/_authenticated/admin/qr'
+      path: '/qr'
+      fullPath: '/admin/qr'
+      preLoaderRoute: typeof AuthenticatedAdminQrRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/finance': {
       id: '/_authenticated/admin/finance'
       path: '/finance'
@@ -540,6 +578,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
   AuthenticatedAdminEmployeesRoute: typeof AuthenticatedAdminEmployeesRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
+  AuthenticatedAdminQrRoute: typeof AuthenticatedAdminQrRoute
   AuthenticatedAdminRequestsRoute: typeof AuthenticatedAdminRequestsRoute
   AuthenticatedAdminShiftsRoute: typeof AuthenticatedAdminShiftsRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -550,6 +589,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
   AuthenticatedAdminEmployeesRoute: AuthenticatedAdminEmployeesRoute,
   AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
+  AuthenticatedAdminQrRoute: AuthenticatedAdminQrRoute,
   AuthenticatedAdminRequestsRoute: AuthenticatedAdminRequestsRoute,
   AuthenticatedAdminShiftsRoute: AuthenticatedAdminShiftsRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
@@ -572,6 +612,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
   AuthenticatedPerformanceRoute: typeof AuthenticatedPerformanceRoute
   AuthenticatedRequestsRoute: typeof AuthenticatedRequestsRoute
+  AuthenticatedScanRoute: typeof AuthenticatedScanRoute
   AuthenticatedServiceLogRoute: typeof AuthenticatedServiceLogRoute
   AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
   AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
@@ -591,6 +632,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
   AuthenticatedPerformanceRoute: AuthenticatedPerformanceRoute,
   AuthenticatedRequestsRoute: AuthenticatedRequestsRoute,
+  AuthenticatedScanRoute: AuthenticatedScanRoute,
   AuthenticatedServiceLogRoute: AuthenticatedServiceLogRoute,
   AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
   AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,

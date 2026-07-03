@@ -1,8 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Clock, LogIn, LogOut, MapPin } from "lucide-react";
+import { Clock, LogIn, LogOut, MapPin, QrCode } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMonthAttendanceStats, getTodayAttendance } from "@/lib/queries";
 import { PageHeader } from "@/components/PageHeader";
@@ -114,6 +114,11 @@ function AttendancePage() {
             </div>
           )}
         </div>
+
+        <Link to="/scan"
+          className="flex items-center justify-center gap-2 bg-card border-2 border-primary/40 text-primary rounded-2xl py-4 font-bold shadow-card hover:bg-primary/5 transition">
+          <QrCode className="size-5" /> مسح QR للحضور السريع
+        </Link>
 
         <section>
           <h2 className="text-lg font-bold mb-3">سجل الشهر</h2>
