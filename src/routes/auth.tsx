@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,7 +11,6 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const navigate = useNavigate();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,20 +21,22 @@ function AuthPage() {
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) routeAfterAuth(navigate);
+      if (data.user) routeAfterAuth();
     });
-  }, [navigate]);
+  }, []);
 
-  async function routeAfterAuth(nav: typeof navigate) {
+  async function routeAfterAuth() {
     const { data: u } = await supabase.auth.getUser();
-    console.log("[auth] user after login:", u.user?.id, u.user?.email);
-    if (!u.user) return nav({ to: "/auth", replace: true });
+    if (!u.user) {
+      window.location.href = "/auth";
+      return;
+    }
+
     const { data: roles, error } = await supabase.from("user_roles").select("role").eq("user_id", u.user.id);
-    console.log("[auth] roles query:", { roles, error });
-    const isStaff = (roles ?? []).some((r: any) => r.role === "admin" || r.role === "manager");
-    const target = isStaff ? "/admin" : "/home";
-    console.log("[auth] redirecting to:", target);
-    nav({ to: target, replace: true });
+    if (error) throw error;
+
+    const isAdmin = (roles ?? []).some((r: any) => r.role === "admin");
+    window.location.href = isAdmin ? "/admin" : "/home";
   }
 
 
@@ -54,12 +55,12 @@ function AuthPage() {
         });
         if (error) throw error;
         toast.success("تم إنشاء الحساب بنجاح");
-        await routeAfterAuth(navigate);
+        await routeAfterAuth();
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) throw error;
         toast.success("تم تسجيل الدخول");
-        await routeAfterAuth(navigate);
+        await routeAfterAuth();
       }
     } catch (err: any) {
       const msg = err?.message ?? "حدث خطأ";
