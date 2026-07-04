@@ -50,7 +50,23 @@ function ScanPage() {
     setMode("scanning");
     setStatus("وجّه الكاميرا نحو كود QR");
     processingRef.current = false;
+
+    // wait for the region <div> to be present in the DOM
+    const waitForRegion = async () => {
+      for (let i = 0; i < 30; i++) {
+        if (document.getElementById(regionId)) return true;
+        await new Promise((r) => requestAnimationFrame(() => r(null)));
+      }
+      return !!document.getElementById(regionId);
+    };
+
     try {
+      if (typeof navigator === "undefined" || !navigator.mediaDevices?.getUserMedia) {
+        throw new Error("المتصفح لا يدعم الكاميرا. جرب فتح الصفحة من متصفح آخر.");
+      }
+      const ready = await waitForRegion();
+      if (!ready) throw new Error("تعذر تهيئة الكاميرا");
+
       const scanner = new Html5Qrcode(regionId, { verbose: false });
       scannerRef.current = scanner;
       await scanner.start(
@@ -64,8 +80,12 @@ function ScanPage() {
         () => { /* per-frame errors ignored */ },
       );
     } catch (e: any) {
+      console.error("[scan] startScan failed", e);
       setMode("idle");
-      toast.error(e?.message ?? "تعذر تشغيل الكاميرا");
+      const msg = e?.message || e?.toString?.() || "تعذر تشغيل الكاميرا";
+      toast.error(msg.includes("Permission") || msg.includes("NotAllowed")
+        ? "يجب السماح بالوصول للكاميرا من إعدادات المتصفح"
+        : msg);
     }
   }
 
