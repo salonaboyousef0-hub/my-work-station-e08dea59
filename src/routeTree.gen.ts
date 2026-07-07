@@ -33,6 +33,7 @@ import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authentic
 import { Route as AuthenticatedAdminShiftsRouteImport } from './routes/_authenticated/admin.shifts'
 import { Route as AuthenticatedAdminRequestsRouteImport } from './routes/_authenticated/admin.requests'
 import { Route as AuthenticatedAdminQrRouteImport } from './routes/_authenticated/admin.qr'
+import { Route as AuthenticatedAdminIntegrationRouteImport } from './routes/_authenticated/admin.integration'
 import { Route as AuthenticatedAdminFinanceRouteImport } from './routes/_authenticated/admin.finance'
 import { Route as AuthenticatedAdminEmployeesRouteImport } from './routes/_authenticated/admin.employees'
 import { Route as AuthenticatedAdminContentRouteImport } from './routes/_authenticated/admin.content'
@@ -163,6 +164,12 @@ const AuthenticatedAdminQrRoute = AuthenticatedAdminQrRouteImport.update({
   path: '/qr',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminIntegrationRoute =
+  AuthenticatedAdminIntegrationRouteImport.update({
+    id: '/integration',
+    path: '/integration',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminFinanceRoute =
   AuthenticatedAdminFinanceRouteImport.update({
     id: '/finance',
@@ -212,6 +219,7 @@ export interface FileRoutesByFullPath {
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/admin/integration': typeof AuthenticatedAdminIntegrationRoute
   '/admin/qr': typeof AuthenticatedAdminQrRoute
   '/admin/requests': typeof AuthenticatedAdminRequestsRoute
   '/admin/shifts': typeof AuthenticatedAdminShiftsRoute
@@ -240,6 +248,7 @@ export interface FileRoutesByTo {
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/admin/integration': typeof AuthenticatedAdminIntegrationRoute
   '/admin/qr': typeof AuthenticatedAdminQrRoute
   '/admin/requests': typeof AuthenticatedAdminRequestsRoute
   '/admin/shifts': typeof AuthenticatedAdminShiftsRoute
@@ -271,6 +280,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/content': typeof AuthenticatedAdminContentRoute
   '/_authenticated/admin/employees': typeof AuthenticatedAdminEmployeesRoute
   '/_authenticated/admin/finance': typeof AuthenticatedAdminFinanceRoute
+  '/_authenticated/admin/integration': typeof AuthenticatedAdminIntegrationRoute
   '/_authenticated/admin/qr': typeof AuthenticatedAdminQrRoute
   '/_authenticated/admin/requests': typeof AuthenticatedAdminRequestsRoute
   '/_authenticated/admin/shifts': typeof AuthenticatedAdminShiftsRoute
@@ -302,6 +312,7 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/employees'
     | '/admin/finance'
+    | '/admin/integration'
     | '/admin/qr'
     | '/admin/requests'
     | '/admin/shifts'
@@ -330,6 +341,7 @@ export interface FileRouteTypes {
     | '/admin/content'
     | '/admin/employees'
     | '/admin/finance'
+    | '/admin/integration'
     | '/admin/qr'
     | '/admin/requests'
     | '/admin/shifts'
@@ -360,6 +372,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/content'
     | '/_authenticated/admin/employees'
     | '/_authenticated/admin/finance'
+    | '/_authenticated/admin/integration'
     | '/_authenticated/admin/qr'
     | '/_authenticated/admin/requests'
     | '/_authenticated/admin/shifts'
@@ -542,6 +555,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminQrRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/integration': {
+      id: '/_authenticated/admin/integration'
+      path: '/integration'
+      fullPath: '/admin/integration'
+      preLoaderRoute: typeof AuthenticatedAdminIntegrationRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/finance': {
       id: '/_authenticated/admin/finance'
       path: '/finance'
@@ -578,6 +598,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminContentRoute: typeof AuthenticatedAdminContentRoute
   AuthenticatedAdminEmployeesRoute: typeof AuthenticatedAdminEmployeesRoute
   AuthenticatedAdminFinanceRoute: typeof AuthenticatedAdminFinanceRoute
+  AuthenticatedAdminIntegrationRoute: typeof AuthenticatedAdminIntegrationRoute
   AuthenticatedAdminQrRoute: typeof AuthenticatedAdminQrRoute
   AuthenticatedAdminRequestsRoute: typeof AuthenticatedAdminRequestsRoute
   AuthenticatedAdminShiftsRoute: typeof AuthenticatedAdminShiftsRoute
@@ -589,6 +610,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminContentRoute: AuthenticatedAdminContentRoute,
   AuthenticatedAdminEmployeesRoute: AuthenticatedAdminEmployeesRoute,
   AuthenticatedAdminFinanceRoute: AuthenticatedAdminFinanceRoute,
+  AuthenticatedAdminIntegrationRoute: AuthenticatedAdminIntegrationRoute,
   AuthenticatedAdminQrRoute: AuthenticatedAdminQrRoute,
   AuthenticatedAdminRequestsRoute: AuthenticatedAdminRequestsRoute,
   AuthenticatedAdminShiftsRoute: AuthenticatedAdminShiftsRoute,

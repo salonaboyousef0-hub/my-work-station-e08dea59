@@ -221,6 +221,7 @@ export type Database = {
         Row: {
           avatar_url: string | null
           balance: number
+          cashier_employee_id: string | null
           created_at: string
           employee_code: string
           full_name: string
@@ -234,6 +235,7 @@ export type Database = {
         Insert: {
           avatar_url?: string | null
           balance?: number
+          cashier_employee_id?: string | null
           created_at?: string
           employee_code?: string
           full_name?: string
@@ -247,6 +249,7 @@ export type Database = {
         Update: {
           avatar_url?: string | null
           balance?: number
+          cashier_employee_id?: string | null
           created_at?: string
           employee_code?: string
           full_name?: string
@@ -531,6 +534,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      integration_settings: {
+        Row: {
+          cashier_publishable_key: string | null
+          cashier_url: string | null
+          created_at: string
+          enabled: boolean
+          id: string
+          stats_function_path: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          cashier_publishable_key?: string | null
+          cashier_url?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          stats_function_path?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          cashier_publishable_key?: string | null
+          cashier_url?: string | null
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          stats_function_path?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       leave_requests: {
         Row: {

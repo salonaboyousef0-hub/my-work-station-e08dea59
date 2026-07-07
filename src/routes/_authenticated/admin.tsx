@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
-import { Users, Inbox, Wallet, Calendar, Megaphone, ScrollText, LayoutDashboard, ArrowRight, QrCode } from "lucide-react";
+import { Users, Inbox, Wallet, Calendar, Megaphone, ScrollText, LayoutDashboard, ArrowRight, QrCode, PlugZap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -24,6 +24,7 @@ const TABS: { to: any; label: string; icon: any; exact?: boolean }[] = [
   { to: "/admin/shifts", label: "الشيفتات", icon: Calendar },
   { to: "/admin/content", label: "المحتوى", icon: Megaphone },
   { to: "/admin/qr", label: "أكواد QR", icon: QrCode },
+  { to: "/admin/integration", label: "ربط الكاشير", icon: PlugZap },
   { to: "/admin/activity", label: "السجل", icon: ScrollText },
 ];
 

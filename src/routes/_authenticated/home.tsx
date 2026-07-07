@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { LogOut, Bell, Wallet, CheckCircle2, XCircle, ArrowLeft, ShieldCheck } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMyProfile, getMonthAttendanceStats, getTransactions, getNotifications, getMyRoles } from "@/lib/queries";
+import { useCashierStats } from "@/hooks/useCashierStats";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/home")({
@@ -19,6 +20,7 @@ function HomePage() {
   const { data: tx = [] } = useQuery({ queryKey: ["tx"], queryFn: getTransactions });
   const { data: notifs = [] } = useQuery({ queryKey: ["notifs"], queryFn: getNotifications });
   const { data: roles = [] } = useQuery({ queryKey: ["my-roles"], queryFn: getMyRoles });
+  const { data: cashier } = useCashierStats();
   const isStaff = roles.includes("admin") || roles.includes("manager");
 
   useEffect(() => {
@@ -111,6 +113,21 @@ function HomePage() {
         </div>
         <p className="text-xs text-muted-foreground text-center -mt-2">من أصل {daysInMonth} يوم في الشهر الحالي</p>
 
+        {cashier?.ok && (
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-bold">من الكاشير</h2>
+              <span className="text-xs text-muted-foreground">تحديث كل 10 ثوانٍ</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <MiniStat label="خدماتي" value={cashier.data.services_count} />
+              <MiniStat label="عملائي" value={cashier.data.clients_count} />
+              <MiniStat label="عمولات" value={cashier.data.commissions_total} suffix="ج.م" />
+              <MiniStat label="مستحق" value={cashier.data.balance_due} suffix="ج.م" tone="primary" />
+            </div>
+          </section>
+        )}
+
         {/* Recent transactions */}
         <section>
           <div className="flex items-center justify-between mb-3">
@@ -123,6 +140,17 @@ function HomePage() {
           </div>
         </section>
       </main>
+    </div>
+  );
+}
+
+function MiniStat({ label, value, suffix, tone }: { label: string; value: number; suffix?: string; tone?: "primary" }) {
+  return (
+    <div className="bg-card rounded-2xl p-4 shadow-card border border-border">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className={`text-xl font-bold mt-2 ${tone === "primary" ? "text-primary" : ""}`}>
+        {Number(value).toLocaleString("ar-EG")} {suffix && <span className="text-xs">{suffix}</span>}
+      </p>
     </div>
   );
 }
