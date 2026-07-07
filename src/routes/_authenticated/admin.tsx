@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, redirect, useRouterState } from "@tanstack/react-router";
-import { Users, Inbox, Wallet, Calendar, Megaphone, ScrollText, LayoutDashboard, ArrowRight, QrCode } from "lucide-react";
+import { Users, Inbox, Wallet, Calendar, Megaphone, ScrollText, LayoutDashboard, ArrowRight, QrCode, PlugZap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/admin")({
