@@ -1,10 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Clock, LogIn, LogOut, MapPin, QrCode } from "lucide-react";
+import { Clock, LogIn, LogOut, MapPin, QrCode, Wifi, WifiOff, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMonthAttendanceStats, getTodayAttendance } from "@/lib/queries";
+import { syncAttendanceToCashier, getOfflineAttendanceQueue } from "@/lib/cashier-integration.functions";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/attendance")({
@@ -22,12 +24,58 @@ function AttendancePage() {
   const { data: today, refetch: refetchToday } = useQuery({ queryKey: ["att-today"], queryFn: getTodayAttendance });
   const { data: month = [], refetch: refetchMonth } = useQuery({ queryKey: ["att-month"], queryFn: getMonthAttendanceStats });
   const [busy, setBusy] = useState(false);
+  const [syncing, setSyncing] = useState(false);
+
+  // Get offline queue status
+  const fetchOfflineQueue = useServerFn(getOfflineAttendanceQueue);
+  const { data: offlineData } = useQuery({
+    queryKey: ["offline-queue"],
+    queryFn: () => fetchOfflineQueue(),
+  });
+  const pendingCount = (offlineData?.data || []).length;
+
+  // Integration settings check
+  const { data: settings } = useQuery({
+    queryKey: ["integration_settings"],
+    queryFn: async () => {
+      const { data } = await supabase.from("integration_settings").select("enabled").limit(1).maybeSingle();
+      return data;
+    },
+  });
+  const cashierEnabled = settings?.enabled;
 
   function getPosition(): Promise<GeolocationPosition | null> {
     return new Promise((resolve) => {
       if (!navigator.geolocation) return resolve(null);
       navigator.geolocation.getCurrentPosition(p => resolve(p), () => resolve(null), { timeout: 5000 });
     });
+  }
+
+  // Sync attendance to cashier
+  async function syncToCashier(action: "check_in" | "check_out", branchId?: string) {
+    if (!cashierEnabled) return;
+
+    setSyncing(true);
+    try {
+      const pos = await getPosition();
+      const syncFn = useServerFn(syncAttendanceToCashier);
+      await syncFn({
+        data: {
+          action,
+          action_time: new Date().toISOString(),
+          branch_id: branchId,
+          latitude: pos?.coords.latitude,
+          longitude: pos?.coords.longitude,
+          device_info: navigator.userAgent,
+        },
+      });
+      // Refresh wallet data
+      qc.invalidateQueries({ queryKey: ["wallet-data"] });
+    } catch (e) {
+      console.error("Cashier sync failed:", e);
+    } finally {
+      setSyncing(false);
+    }
   }
 
   async function checkIn() {
@@ -47,6 +95,8 @@ function AttendancePage() {
       } else {
         toast.success("تم تسجيل الحضور بنجاح");
         await Promise.all([refetchToday(), refetchMonth(), qc.invalidateQueries({ queryKey: ["att-month"] })]);
+        // Sync to cashier in background
+        syncToCashier("check_in");
       }
     } catch (e: any) { toast.error(e.message ?? "حدث خطأ"); }
     finally { setBusy(false); }
@@ -65,6 +115,8 @@ function AttendancePage() {
       if (error) throw error;
       toast.success("تم تسجيل الانصراف");
       await Promise.all([refetchToday(), refetchMonth()]);
+      // Sync to cashier in background
+      syncToCashier("check_out");
     } catch (e: any) { toast.error(e.message ?? "حدث خطأ"); }
     finally { setBusy(false); }
   }
@@ -96,16 +148,36 @@ function AttendancePage() {
             </div>
           </div>
 
+          {/* Offline queue indicator */}
+          {pendingCount > 0 && (
+            <div className="mt-4 bg-warning/10 border border-warning/30 rounded-xl p-3 flex items-center gap-2">
+              <WifiOff className="size-4 text-warning" />
+              <p className="text-xs text-warning font-medium flex-1">
+                {pendingCount} عملية حضور في انتظار المزامنة
+              </p>
+              <Upload className="size-4 text-warning animate-pulse" />
+            </div>
+          )}
+
+          {/* Cashier sync status */}
+          {cashierEnabled && syncing && (
+            <div className="mt-3 text-center">
+              <p className="text-xs text-muted-foreground flex items-center justify-center gap-1">
+                <Wifi className="size-3 animate-pulse" /> جاري المزامنة مع الكاشير...
+              </p>
+            </div>
+          )}
+
           {!checkedIn && (
             <button onClick={checkIn} disabled={busy}
               className="mt-5 w-full bg-gradient-primary text-primary-foreground rounded-xl py-4 font-bold text-base shadow-card flex items-center justify-center gap-2 disabled:opacity-60">
-              <LogIn className="size-5" /> تسجيل حضور
+              {syncing ? <Wifi className="size-5 animate-pulse" /> : <LogIn className="size-5" />} تسجيل حضور
             </button>
           )}
           {checkedIn && !checkedOut && (
             <button onClick={checkOut} disabled={busy}
               className="mt-5 w-full bg-warning text-warning-foreground rounded-xl py-4 font-bold text-base shadow-card flex items-center justify-center gap-2 disabled:opacity-60">
-              <LogOut className="size-5" /> تسجيل انصراف
+              {syncing ? <Wifi className="size-5 animate-pulse" /> : <LogOut className="size-5" />} تسجيل انصراف
             </button>
           )}
           {checkedOut && (
