@@ -144,6 +144,17 @@ function HomePage() {
   );
 }
 
+function MiniStat({ label, value, suffix, tone }: { label: string; value: number; suffix?: string; tone?: "primary" }) {
+  return (
+    <div className="bg-card rounded-2xl p-4 shadow-card border border-border">
+      <p className="text-xs text-muted-foreground">{label}</p>
+      <p className={`text-xl font-bold mt-2 ${tone === "primary" ? "text-primary" : ""}`}>
+        {Number(value).toLocaleString("ar-EG")} {suffix && <span className="text-xs">{suffix}</span>}
+      </p>
+    </div>
+  );
+}
+
 function StatCard({ icon, label, value, tone }: { icon: React.ReactNode; label: string; value: number; tone: "success" | "destructive" }) {
   const cls = tone === "success" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive";
   return (
