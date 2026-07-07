@@ -113,6 +113,21 @@ function HomePage() {
         </div>
         <p className="text-xs text-muted-foreground text-center -mt-2">من أصل {daysInMonth} يوم في الشهر الحالي</p>
 
+        {cashier?.ok && (
+          <section>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-bold">من الكاشير</h2>
+              <span className="text-xs text-muted-foreground">تحديث كل 10 ثوانٍ</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <MiniStat label="خدماتي" value={cashier.data.services_count} />
+              <MiniStat label="عملائي" value={cashier.data.clients_count} />
+              <MiniStat label="عمولات" value={cashier.data.commissions_total} suffix="ج.م" />
+              <MiniStat label="مستحق" value={cashier.data.balance_due} suffix="ج.م" tone="primary" />
+            </div>
+          </section>
+        )}
+
         {/* Recent transactions */}
         <section>
           <div className="flex items-center justify-between mb-3">
