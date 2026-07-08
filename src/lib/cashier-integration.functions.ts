@@ -73,7 +73,22 @@ const corsHeaders = {
 
 // ==================== Helper Functions ====================
 
+function getCashierEnvCredentials() {
+  const url = process.env.CASHIER_SUPABASE_URL;
+  const publishableKey = process.env.CASHIER_SUPABASE_PUBLISHABLE_KEY;
+  const serviceRoleKey = process.env.CASHIER_SERVICE_ROLE_KEY;
+
+  return {
+    url,
+    publishableKey,
+    serviceRoleKey,
+    configured: !!(url && publishableKey),
+  };
+}
+
 async function getIntegrationSettings(supabase: any) {
+  const envCreds = getCashierEnvCredentials();
+
   const { data, error } = await supabase
     .from("integration_settings")
     .select("*")
@@ -81,7 +96,14 @@ async function getIntegrationSettings(supabase: any) {
     .maybeSingle();
 
   if (error) throw error;
-  return data;
+
+  // Use environment variables for credentials, fallback to DB for backward compatibility
+  return {
+    ...data,
+    cashier_url: envCreds.url || data?.cashier_url,
+    cashier_publishable_key: envCreds.publishableKey || data?.cashier_publishable_key,
+    has_env_credentials: envCreds.configured,
+  };
 }
 
 async function getEmployeeCashierMapping(supabase: any, employeeId: string) {
@@ -129,17 +151,23 @@ async function callCashierFunction(
   cashierEmployeeId: string,
   payload?: any
 ): Promise<{ ok: boolean; data?: any; error?: string; status?: number }> {
-  const base = settings.cashier_url.replace(/\/+$/, "");
+  const base = (settings.cashier_url || "").replace(/\/+$/, "");
   const path = functionPath.startsWith("/") ? functionPath : `/functions/v1/${functionPath}`;
   const url = `${base}${path}`;
+
+  const apiKey = settings.cashier_publishable_key;
+
+  if (!base || !apiKey) {
+    return { ok: false, error: "بيانات الاتصال بالكاشير غير مكتملة" };
+  }
 
   try {
     const res = await fetch(url, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        apikey: settings.cashier_publishable_key,
-        Authorization: `Bearer ${settings.cashier_publishable_key}`,
+        apikey: apiKey,
+        Authorization: `Bearer ${apiKey}`,
         "x-cashier-employee-id": cashierEmployeeId,
       },
       body: payload ? JSON.stringify({ ...payload, cashier_employee_id: cashierEmployeeId }) : undefined,
@@ -147,7 +175,8 @@ async function callCashierFunction(
 
     if (!res.ok) {
       const text = await res.text().catch(() => "");
-      return { ok: false, error: `فشل الاتصال (${res.status})`, status: res.status };
+      console.error("[cashier] error response:", res.status, text);
+      return { ok: false, error: `فشل الاتصال (${res.status}): ${text.slice(0, 100)}`, status: res.status };
     }
 
     const json = await res.json();
@@ -155,6 +184,44 @@ async function callCashierFunction(
   } catch (err) {
     console.error("[cashier] network error", err);
     return { ok: false, error: "تعذّر الوصول لخادم الكاشير" };
+  }
+}
+
+// Direct Cashier API call using service role for admin operations
+async function callCashierServiceRole(
+  endpoint: string,
+  payload?: any
+): Promise<{ ok: boolean; data?: any; error?: string }> {
+  const envCreds = getCashierEnvCredentials();
+
+  if (!envCreds.configured || !envCreds.serviceRoleKey) {
+    return { ok: false, error: "بيانات الاتصال بالكاشير غير مكتملة" };
+  }
+
+  const url = `${envCreds.url}/rest/v1/${endpoint}`;
+
+  try {
+    const res = await fetch(url, {
+      method: payload ? "POST" : "GET",
+      headers: {
+        "Content-Type": "application/json",
+        apikey: envCreds.serviceRoleKey,
+        Authorization: `Bearer ${envCreds.serviceRoleKey}`,
+        Prefer: payload ? "return=representation" : undefined,
+      },
+      body: payload ? JSON.stringify(payload) : undefined,
+    });
+
+    if (!res.ok) {
+      const text = await res.text().catch(() => "");
+      return { ok: false, error: `فشل الاتصال (${res.status})` };
+    }
+
+    const json = await res.json();
+    return { ok: true, data: json };
+  } catch (err) {
+    console.error("[cashier] service role error", err);
+    return { ok: false, error: "حدث خطأ في الاتصال" };
   }
 }
 
@@ -166,8 +233,15 @@ export const getCashierEmployeeStats = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
 
     const settings = await getIntegrationSettings(supabase);
-    if (!settings?.enabled || !settings.cashier_url || !settings.cashier_publishable_key) {
+
+    // Check if integration is enabled or if env credentials are available
+    const envCreds = getCashierEnvCredentials();
+    if (!settings?.enabled && !envCreds.configured) {
       return { ok: false, error: "الربط مع الكاشير غير مفعّل", code: "not_configured" };
+    }
+
+    if (!settings?.cashier_url || !settings?.cashier_publishable_key) {
+      return { ok: false, error: "بيانات الاتصال بالكاشير غير مكتملة", code: "not_configured" };
     }
 
     const mapping = await getEmployeeCashierMapping(supabase, userId);
@@ -193,7 +267,7 @@ export const getCashierEmployeeStats = createServerFn({ method: "GET" })
 
     const path = settings.stats_function_path || "/functions/v1/employee-stats";
     const result = await callCashierFunction(
-      { ...settings },
+      settings,
       path,
       cashierEmployeeId,
       { action: "get_stats" }
@@ -229,8 +303,14 @@ export const syncAttendanceToCashier = createServerFn({ method: "POST" })
     const payload = data as AttendanceSyncPayload;
 
     const settings = await getIntegrationSettings(supabase);
-    if (!settings?.enabled || !settings.cashier_url || !settings.cashier_publishable_key) {
+    const envCreds = getCashierEnvCredentials();
+
+    if (!settings?.enabled && !envCreds.configured) {
       return { ok: false, error: "الربط مع الكاشير غير مفعّل", synced: false };
+    }
+
+    if (!settings?.cashier_url || !settings?.cashier_publishable_key) {
+      return { ok: false, error: "بيانات الاتصال بالكاشير غير مكتملة", synced: false };
     }
 
     const mapping = await getEmployeeCashierMapping(supabase, userId);
@@ -254,23 +334,17 @@ export const syncAttendanceToCashier = createServerFn({ method: "POST" })
     );
 
     if (result.ok) {
-      // Log success
       await logSyncActivity(supabase, "attendance", "to_cashier", userId, payload, result.data, "success");
 
-      // Update local attendance record with cashier sync status
-      // The local attendance is already saved by the client
-
-      // Create notification
       await supabase.from("notifications").insert({
         employee_id: userId,
         title: payload.action === "check_in" ? "تم تسجيل الحضور" : "تم تسجيل الانصراف",
-        body: `تمت المزامنة مع الكاشير بنجاح`,
+        body: "تمت المزامنة مع الكاشير بنجاح",
         type: "system",
       });
 
       return { ok: true, synced: true, data: result.data };
     } else {
-      // Log failure
       await logSyncActivity(supabase, "attendance", "to_cashier", userId, payload, null, "failed", result.error);
       return { ok: false, error: result.error, synced: false };
     }
@@ -284,8 +358,14 @@ export const fetchWalletFromCashier = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
 
     const settings = await getIntegrationSettings(supabase);
-    if (!settings?.enabled || !settings.cashier_url || !settings.cashier_publishable_key) {
+    const envCreds = getCashierEnvCredentials();
+
+    if (!settings?.enabled && !envCreds.configured) {
       return { ok: false, error: "الربط مع الكاشير غير مفعّل" };
+    }
+
+    if (!settings?.cashier_url || !settings?.cashier_publishable_key) {
+      return { ok: false, error: "بيانات الاتصال بالكاشير غير مكتملة" };
     }
 
     const mapping = await getEmployeeCashierMapping(supabase, userId);
@@ -295,7 +375,6 @@ export const fetchWalletFromCashier = createServerFn({ method: "GET" })
 
     const functionPath = settings.wallet_function_path || "/functions/v1/wallet-sync";
 
-    // Log pending
     await logSyncActivity(supabase, "wallet", "from_cashier", userId, null, null, "pending");
 
     const result = await callCashierFunction(
@@ -308,14 +387,15 @@ export const fetchWalletFromCashier = createServerFn({ method: "GET" })
     if (result.ok && result.data) {
       await logSyncActivity(supabase, "wallet", "from_cashier", userId, null, result.data, "success");
 
-      // Update connection status
-      await supabase
-        .from("integration_settings")
-        .update({
-          connection_status: "connected",
-          last_sync_at: new Date().toISOString(),
-        })
-        .eq("id", settings.id);
+      if (settings?.id) {
+        await supabase
+          .from("integration_settings")
+          .update({
+            connection_status: "connected",
+            last_sync_at: new Date().toISOString(),
+          })
+          .eq("id", settings.id);
+      }
 
       return {
         ok: true,
@@ -342,7 +422,9 @@ export const testCashierConnection = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
 
     const settings = await getIntegrationSettings(supabase);
-    if (!settings?.cashier_url || !settings.cashier_publishable_key) {
+    const envCreds = getCashierEnvCredentials();
+
+    if (!envCreds.configured && (!settings?.cashier_url || !settings?.cashier_publishable_key)) {
       return { ok: false, error: "إعدادات الربط غير مكتملة" };
     }
 
@@ -352,18 +434,21 @@ export const testCashierConnection = createServerFn({ method: "POST" })
     }
 
     const startTime = Date.now();
-    const path = settings.stats_function_path || "/functions/v1/employee-stats";
+    const path = settings?.stats_function_path || "/functions/v1/employee-stats";
     const result = await callCashierFunction(settings, path, mapping.cashier_employee_id, { test: true });
     const latency = Date.now() - startTime;
 
     const connectionStatus = result.ok ? "connected" : "disconnected";
-    await supabase
-      .from("integration_settings")
-      .update({
-        connection_status: connectionStatus,
-        last_sync_at: result.ok ? new Date().toISOString() : null,
-      })
-      .eq("id", settings.id);
+
+    if (settings?.id) {
+      await supabase
+        .from("integration_settings")
+        .update({
+          connection_status: connectionStatus,
+          last_sync_at: result.ok ? new Date().toISOString() : null,
+        })
+        .eq("id", settings.id);
+    }
 
     return {
       ok: result.ok,
@@ -654,7 +739,6 @@ export const processOfflineQueue = createServerFn({ method: "POST" })
   .handler(async ({ context }) => {
     const { supabase, userId } = context;
 
-    // Get pending items
     const { data: queue, error: queueError } = await supabase
       .from("offline_attendance_queue")
       .select("*")
@@ -666,10 +750,15 @@ export const processOfflineQueue = createServerFn({ method: "POST" })
       return { ok: true, processed: 0, failed: 0 };
     }
 
-    // Get settings and mapping
     const settings = await getIntegrationSettings(supabase);
-    if (!settings?.enabled) {
+    const envCreds = getCashierEnvCredentials();
+
+    if (!settings?.enabled && !envCreds.configured) {
       return { ok: false, error: "التكامل غير مفعل" };
+    }
+
+    if (!settings?.cashier_url || !settings?.cashier_publishable_key) {
+      return { ok: false, error: "بيانات الاتصال غير مكتملة" };
     }
 
     const mapping = await getEmployeeCashierMapping(supabase, userId);
@@ -691,12 +780,7 @@ export const processOfflineQueue = createServerFn({ method: "POST" })
         device_info: item.device_info,
       };
 
-      const result = await callCashierFunction(
-        settings,
-        functionPath,
-        mapping.cashier_employee_id,
-        payload
-      );
+      const result = await callCashierFunction(settings, functionPath, mapping.cashier_employee_id, payload);
 
       if (result.ok) {
         await supabase
@@ -718,4 +802,308 @@ export const processOfflineQueue = createServerFn({ method: "POST" })
     }
 
     return { ok: true, processed, failed };
+  });
+
+// ==================== Sync Commissions from Cashier ====================
+
+export const syncCommissionsFromCashier = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+
+    const settings = await getIntegrationSettings(supabase);
+    const envCreds = getCashierEnvCredentials();
+
+    if (!settings?.enabled && !envCreds.configured) {
+      return { ok: false, error: "الربط مع الكاشير غير مفعّل" };
+    }
+
+    if (!settings?.cashier_url || !settings?.cashier_publishable_key) {
+      return { ok: false, error: "بيانات الاتصال غير مكتملة" };
+    }
+
+    const mapping = await getEmployeeCashierMapping(supabase, userId);
+    if (!mapping) {
+      return { ok: false, error: "الموظف غير مرتبط بالكاشير" };
+    }
+
+    const functionPath = settings.commission_function_path || "/functions/v1/commission-sync";
+
+    const result = await callCashierFunction(settings, functionPath, mapping.cashier_employee_id, {
+      action: "get_commissions",
+    });
+
+    if (result.ok && result.data?.commissions) {
+      await logSyncActivity(supabase, "commission", "from_cashier", userId, null, result.data, "success");
+
+      // Insert commissions as transactions
+      for (const comm of result.data.commissions || []) {
+        await supabase.from("wallet_transactions").upsert(
+          {
+            employee_id: userId,
+            transaction_type: "commission",
+            amount: comm.amount,
+            description: comm.description || `عمولة خدمة ${comm.service_name || ""}`,
+            reference_id: comm.id,
+            reference_type: "cashier_commission",
+            metadata: { service_name: comm.service_name, client_name: comm.client_name },
+            cashier_synced: true,
+            cashier_transaction_id: comm.id,
+            synced_at: new Date().toISOString(),
+          },
+          { onConflict: "reference_id,reference_type" }
+        );
+      }
+
+      return { ok: true, count: result.data.commissions?.length || 0 };
+    }
+
+    await logSyncActivity(supabase, "commission", "from_cashier", userId, null, null, "failed", result.error);
+    return { ok: false, error: result.error };
+  });
+
+// ==================== Sync Salary from Cashier ====================
+
+export const syncSalaryFromCashier = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+
+    const settings = await getIntegrationSettings(supabase);
+    const envCreds = getCashierEnvCredentials();
+
+    if (!settings?.enabled && !envCreds.configured) {
+      return { ok: false, error: "الربط مع الكاشير غير مفعّل" };
+    }
+
+    if (!settings?.cashier_url || !settings?.cashier_publishable_key) {
+      return { ok: false, error: "بيانات الاتصال غير مكتملة" };
+    }
+
+    const mapping = await getEmployeeCashierMapping(supabase, userId);
+    if (!mapping) {
+      return { ok: false, error: "الموظف غير مرتبط بالكاشير" };
+    }
+
+    const result = await callCashierFunction(settings, "/functions/v1/salary-sync", mapping.cashier_employee_id, {
+      action: "get_salary",
+    });
+
+    if (result.ok && result.data) {
+      await logSyncActivity(supabase, "salary", "from_cashier", userId, null, result.data, "success");
+
+      return {
+        ok: true,
+        data: {
+          base_salary: Number(result.data.base_salary ?? 0),
+          allowances: Number(result.data.allowances ?? 0),
+          deductions: Number(result.data.deductions ?? 0),
+          net_salary: Number(result.data.net_salary ?? 0),
+          payment_date: result.data.payment_date,
+          payment_status: result.data.payment_status,
+        },
+      };
+    }
+
+    await logSyncActivity(supabase, "salary", "from_cashier", userId, null, null, "failed", result.error);
+    return { ok: false, error: result.error };
+  });
+
+// ==================== Sync Advances from Cashier ====================
+
+export const syncAdvancesFromCashier = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+
+    const settings = await getIntegrationSettings(supabase);
+    const envCreds = getCashierEnvCredentials();
+
+    if (!settings?.enabled && !envCreds.configured) {
+      return { ok: false, error: "الربط مع الكاشير غير مفعّل" };
+    }
+
+    if (!settings?.cashier_url || !settings?.cashier_publishable_key) {
+      return { ok: false, error: "بيانات الاتصال غير مكتملة" };
+    }
+
+    const mapping = await getEmployeeCashierMapping(supabase, userId);
+    if (!mapping) {
+      return { ok: false, error: "الموظف غير مرتبط بالكاشير" };
+    }
+
+    const result = await callCashierFunction(settings, "/functions/v1/advance-sync", mapping.cashier_employee_id, {
+      action: "get_advances",
+    });
+
+    if (result.ok && result.data?.advances) {
+      await logSyncActivity(supabase, "advance", "from_cashier", userId, null, result.data, "success");
+
+      for (const adv of result.data.advances || []) {
+        await supabase.from("wallet_transactions").upsert(
+          {
+            employee_id: userId,
+            transaction_type: "advance",
+            amount: adv.amount,
+            description: adv.description || "سلفة",
+            reference_id: adv.id,
+            reference_type: "cashier_advance",
+            metadata: { approved_by: adv.approved_by, status: adv.status },
+            cashier_synced: true,
+            cashier_transaction_id: adv.id,
+            synced_at: new Date().toISOString(),
+          },
+          { onConflict: "reference_id,reference_type" }
+        );
+      }
+
+      return { ok: true, count: result.data.advances?.length || 0 };
+    }
+
+    await logSyncActivity(supabase, "advance", "from_cashier", userId, null, null, "failed", result.error);
+    return { ok: false, error: result.error };
+  });
+
+// ==================== Sync Withdrawals from Cashier ====================
+
+export const syncWithdrawalsFromCashier = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+
+    const settings = await getIntegrationSettings(supabase);
+    const envCreds = getCashierEnvCredentials();
+
+    if (!settings?.enabled && !envCreds.configured) {
+      return { ok: false, error: "الربط مع الكاشير غير مفعّل" };
+    }
+
+    if (!settings?.cashier_url || !settings?.cashier_publishable_key) {
+      return { ok: false, error: "بيانات الاتصال غير مكتملة" };
+    }
+
+    const mapping = await getEmployeeCashierMapping(supabase, userId);
+    if (!mapping) {
+      return { ok: false, error: "الموظف غير مرتبط بالكاشير" };
+    }
+
+    const result = await callCashierFunction(settings, "/functions/v1/withdrawal-sync", mapping.cashier_employee_id, {
+      action: "get_withdrawals",
+    });
+
+    if (result.ok && result.data?.withdrawals) {
+      await logSyncActivity(supabase, "withdrawal", "from_cashier", userId, null, result.data, "success");
+
+      for (const wd of result.data.withdrawals || []) {
+        await supabase.from("wallet_transactions").upsert(
+          {
+            employee_id: userId,
+            transaction_type: "withdrawal",
+            amount: wd.amount,
+            description: wd.description || "صرف",
+            reference_id: wd.id,
+            reference_type: "cashier_withdrawal",
+            metadata: { approved_by: wd.approved_by, method: wd.method },
+            cashier_synced: true,
+            cashier_transaction_id: wd.id,
+            synced_at: new Date().toISOString(),
+          },
+          { onConflict: "reference_id,reference_type" }
+        );
+      }
+
+      return { ok: true, count: result.data.withdrawals?.length || 0 };
+    }
+
+    await logSyncActivity(supabase, "withdrawal", "from_cashier", userId, null, null, "failed", result.error);
+    return { ok: false, error: result.error };
+  });
+
+// ==================== Get Cashier Employee Info ====================
+
+export const getCashierEmployeeInfo = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+
+    const settings = await getIntegrationSettings(supabase);
+    const envCreds = getCashierEnvCredentials();
+
+    if (!envCreds.configured) {
+      return { ok: false, error: "بيانات الكاشير غير مُعدة" };
+    }
+
+    const mapping = await getEmployeeCashierMapping(supabase, userId);
+
+    return {
+      ok: true,
+      data: {
+        mapping,
+        cashier_url: envCreds.url,
+        is_configured: envCreds.configured,
+      },
+    };
+  });
+
+// ==================== Full Sync (Admin) ====================
+
+export const runFullSync = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase } = context;
+
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId);
+    const isAdmin = (roles || []).some((r: any) => r.role === "admin" || r.role === "manager");
+    if (!isAdmin) {
+      return { ok: false, error: "غير مصرح" };
+    }
+
+    const settings = await getIntegrationSettings(supabase);
+    const envCreds = getCashierEnvCredentials();
+
+    if (!envCreds.configured && !settings?.enabled) {
+      return { ok: false, error: "التكامل غير مُفعّل" };
+    }
+
+    if (!settings?.cashier_url || !settings?.cashier_publishable_key) {
+      return { ok: false, error: "بيانات الاتصال غير مكتملة" };
+    }
+
+    const { data: mappings } = await supabase
+      .from("cashier_employee_mapping")
+      .select("employee_id, cashier_employee_id")
+      .eq("active", true);
+
+    const results = {
+      wallet: { success: 0, failed: 0 },
+      total_employees: mappings?.length || 0,
+    };
+
+    for (const m of mappings || []) {
+      const result = await callCashierFunction(
+        settings,
+        settings.wallet_function_path || "/functions/v1/wallet-sync",
+        m.cashier_employee_id,
+        { action: "get_wallet" }
+      );
+
+      if (result.ok) {
+        results.wallet.success++;
+      } else {
+        results.wallet.failed++;
+      }
+    }
+
+    await supabase
+      .from("integration_settings")
+      .update({
+        last_sync_at: new Date().toISOString(),
+        connection_status: "connected",
+      })
+      .eq("id", settings.id);
+
+    return { ok: true, results };
   });
