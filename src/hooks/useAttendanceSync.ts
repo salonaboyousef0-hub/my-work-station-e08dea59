@@ -77,7 +77,7 @@ export function useAttendanceSync() {
 
       // If offline, queue locally
       if (!isOnline()) {
-        await supabase.from("offline_attendance_queue").insert({
+        await (supabase as any).from("offline_attendance_queue").insert({
           employee_id: (await supabase.auth.getUser()).data.user?.id,
           action,
           action_time: actionTime.toISOString(),
@@ -109,7 +109,7 @@ export function useAttendanceSync() {
           return { success: true };
         } else {
           // Queue locally if sync failed
-          await supabase.from("offline_attendance_queue").insert({
+          await (supabase as any).from("offline_attendance_queue").insert({
             employee_id: (await supabase.auth.getUser()).data.user?.id,
             action,
             action_time: actionTime.toISOString(),
