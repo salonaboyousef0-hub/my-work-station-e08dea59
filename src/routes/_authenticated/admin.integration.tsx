@@ -85,7 +85,7 @@ function IntegrationSettingsPage() {
     try {
       // Update settings
       if (data?.id) {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from("integration_settings")
           .update({
             cashier_url: form.cashier_url.trim(),
