@@ -44,6 +44,7 @@ export type WalletTransaction = {
   description: string;
   reference_id: string;
   created_at: string;
+  cashier_synced?: boolean;
 };
 
 export type AttendanceSyncPayload = {
