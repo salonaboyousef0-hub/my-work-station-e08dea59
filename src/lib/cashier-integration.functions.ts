@@ -300,7 +300,7 @@ export const syncAttendanceToCashier = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
     const { supabase: _sb, userId } = context; const supabase: any = _sb;
-    const payload = data as AttendanceSyncPayload;
+    const payload = data as unknown as AttendanceSyncPayload;
 
     const settings = await getIntegrationSettings(supabase);
     const envCreds = getCashierEnvCredentials();
