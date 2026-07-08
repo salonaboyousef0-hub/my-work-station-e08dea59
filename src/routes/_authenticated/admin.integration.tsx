@@ -394,7 +394,7 @@ function EmployeeMappingTab() {
     }
 
     try {
-      const result = await upsertMapping({ data: form });
+      const result = await (upsertMapping as any)({ data: form });
       if (result?.ok) {
         toast.success("تم حفظ الربط");
         setShowForm(false);
