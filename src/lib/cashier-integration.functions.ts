@@ -207,7 +207,7 @@ async function callCashierServiceRole(
         "Content-Type": "application/json",
         apikey: envCreds.serviceRoleKey,
         Authorization: `Bearer ${envCreds.serviceRoleKey}`,
-        Prefer: payload ? "return=representation" : undefined,
+        ...(payload ? { Prefer: "return=representation" } : {}),
       },
       body: payload ? JSON.stringify(payload) : undefined,
     });
