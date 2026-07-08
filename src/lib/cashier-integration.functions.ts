@@ -129,7 +129,7 @@ async function logSyncActivity(
   errorMessage?: string
 ) {
   try {
-    await supabase.from("sync_audit_log").insert({
+    await (supabase as any).from("sync_audit_log").insert({
       sync_type: syncType,
       direction,
       employee_id: employeeId,
@@ -838,7 +838,7 @@ export const syncCommissionsFromCashier = createServerFn({ method: "GET" })
 
       // Insert commissions as transactions
       for (const comm of result.data.commissions || []) {
-        await supabase.from("wallet_transactions").upsert(
+        await (supabase as any).from("wallet_transactions").upsert(
           {
             employee_id: userId,
             transaction_type: "commission",
@@ -940,7 +940,7 @@ export const syncAdvancesFromCashier = createServerFn({ method: "GET" })
       await logSyncActivity(supabase, "advance", "from_cashier", userId, null, result.data, "success");
 
       for (const adv of result.data.advances || []) {
-        await supabase.from("wallet_transactions").upsert(
+        await (supabase as any).from("wallet_transactions").upsert(
           {
             employee_id: userId,
             transaction_type: "advance",
@@ -995,7 +995,7 @@ export const syncWithdrawalsFromCashier = createServerFn({ method: "GET" })
       await logSyncActivity(supabase, "withdrawal", "from_cashier", userId, null, result.data, "success");
 
       for (const wd of result.data.withdrawals || []) {
-        await supabase.from("wallet_transactions").upsert(
+        await (supabase as any).from("wallet_transactions").upsert(
           {
             employee_id: userId,
             transaction_type: "withdrawal",
