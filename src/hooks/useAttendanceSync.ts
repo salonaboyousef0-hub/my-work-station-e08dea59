@@ -94,7 +94,7 @@ export function useAttendanceSync() {
 
       // Try to sync
       try {
-        const result = await syncMutation.mutateAsync({
+        const result = await (syncMutation.mutateAsync as any)({
           data: {
             action,
             action_time: actionTime.toISOString(),
