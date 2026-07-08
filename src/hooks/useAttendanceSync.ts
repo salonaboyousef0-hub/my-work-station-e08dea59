@@ -41,8 +41,8 @@ export function useAttendanceSync() {
     // Use processOfflineQueue server function
     const processQueue = useServerFn(processOfflineQueue);
     try {
-      const result = await processQueue();
-      if (result?.processed > 0) {
+      const result = (await processQueue()) as any;
+      if ((result?.processed ?? 0) > 0) {
         toast.success(`تم إرسال ${result.processed} عملية حضور محفوظة`);
         queryClient.invalidateQueries({ queryKey: ["attendance"] });
         queryClient.invalidateQueries({ queryKey: ["wallet-data"] });
