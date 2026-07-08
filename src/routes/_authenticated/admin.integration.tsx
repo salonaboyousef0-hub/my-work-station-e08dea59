@@ -213,11 +213,11 @@ function IntegrationSettingsPage() {
 
       {/* Tabs */}
       <div className="flex gap-2 p-1 bg-muted rounded-xl">
-        {[
+        {([
           ["settings", "الإعدادات", Settings],
           ["mapping", "ربط الموظفين", Users],
           ["audit", "سجل المزامنة", Activity],
-        ].map(([k, l, Icon]) => (
+        ] as const).map(([k, l, Icon]) => (
           <button
             key={k}
             onClick={() => setTab(k as any)}
