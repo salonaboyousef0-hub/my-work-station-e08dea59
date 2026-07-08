@@ -59,7 +59,7 @@ function AttendancePage() {
     try {
       const pos = await getPosition();
       const syncFn = useServerFn(syncAttendanceToCashier);
-      await syncFn({
+      await (syncFn as any)({
         data: {
           action,
           action_time: new Date().toISOString(),

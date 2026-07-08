@@ -85,7 +85,7 @@ function IntegrationSettingsPage() {
     try {
       // Update settings
       if (data?.id) {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from("integration_settings")
           .update({
             cashier_url: form.cashier_url.trim(),
@@ -102,7 +102,7 @@ function IntegrationSettingsPage() {
           .eq("id", data.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("integration_settings").insert({
+        const { error } = await (supabase as any).from("integration_settings").insert({
           cashier_url: form.cashier_url.trim(),
           cashier_publishable_key: form.cashier_publishable_key.trim(),
           stats_function_path: form.stats_function_path.trim() || DEFAULTS.stats_function_path,
@@ -213,11 +213,11 @@ function IntegrationSettingsPage() {
 
       {/* Tabs */}
       <div className="flex gap-2 p-1 bg-muted rounded-xl">
-        {[
+        {([
           ["settings", "الإعدادات", Settings],
           ["mapping", "ربط الموظفين", Users],
           ["audit", "سجل المزامنة", Activity],
-        ].map(([k, l, Icon]) => (
+        ] as const).map(([k, l, Icon]) => (
           <button
             key={k}
             onClick={() => setTab(k as any)}
@@ -394,7 +394,7 @@ function EmployeeMappingTab() {
     }
 
     try {
-      const result = await upsertMapping({ data: form });
+      const result = await (upsertMapping as any)({ data: form });
       if (result?.ok) {
         toast.success("تم حفظ الربط");
         setShowForm(false);

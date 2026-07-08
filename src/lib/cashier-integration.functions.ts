@@ -44,6 +44,7 @@ export type WalletTransaction = {
   description: string;
   reference_id: string;
   created_at: string;
+  cashier_synced?: boolean;
 };
 
 export type AttendanceSyncPayload = {
@@ -129,7 +130,7 @@ async function logSyncActivity(
   errorMessage?: string
 ) {
   try {
-    await supabase.from("sync_audit_log").insert({
+    await (supabase as any).from("sync_audit_log").insert({
       sync_type: syncType,
       direction,
       employee_id: employeeId,
@@ -207,7 +208,7 @@ async function callCashierServiceRole(
         "Content-Type": "application/json",
         apikey: envCreds.serviceRoleKey,
         Authorization: `Bearer ${envCreds.serviceRoleKey}`,
-        Prefer: payload ? "return=representation" : undefined,
+        ...(payload ? { Prefer: "return=representation" } : {}),
       },
       body: payload ? JSON.stringify(payload) : undefined,
     });
@@ -230,7 +231,7 @@ async function callCashierServiceRole(
 export const getCashierEmployeeStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<CashierStatsResult> => {
-    const { supabase, userId } = context;
+    const { supabase: _sb, userId } = context; const supabase: any = _sb;
 
     const settings = await getIntegrationSettings(supabase);
 
@@ -299,8 +300,8 @@ export const getCashierEmployeeStats = createServerFn({ method: "GET" })
 export const syncAttendanceToCashier = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase, userId } = context;
-    const payload = data as AttendanceSyncPayload;
+    const { supabase: _sb, userId } = context; const supabase: any = _sb;
+    const payload = data as unknown as AttendanceSyncPayload;
 
     const settings = await getIntegrationSettings(supabase);
     const envCreds = getCashierEnvCredentials();
@@ -355,7 +356,7 @@ export const syncAttendanceToCashier = createServerFn({ method: "POST" })
 export const fetchWalletFromCashier = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const { supabase: _sb, userId } = context; const supabase: any = _sb;
 
     const settings = await getIntegrationSettings(supabase);
     const envCreds = getCashierEnvCredentials();
@@ -419,7 +420,7 @@ export const fetchWalletFromCashier = createServerFn({ method: "GET" })
 export const testCashierConnection = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const { supabase: _sb, userId } = context; const supabase: any = _sb;
 
     const settings = await getIntegrationSettings(supabase);
     const envCreds = getCashierEnvCredentials();
@@ -462,7 +463,7 @@ export const testCashierConnection = createServerFn({ method: "POST" })
 export const getWalletHistory = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const { supabase: _sb, userId } = context; const supabase: any = _sb;
 
     const { data, error } = await supabase
       .from("wallet_transactions")
@@ -495,7 +496,7 @@ export const getWalletHistory = createServerFn({ method: "GET" })
 export const addWalletTransaction = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase, userId } = context;
+    const { supabase: _sb, userId } = context; const supabase: any = _sb;
     const { type, amount, description, reference_id, reference_type, metadata, cashier_transaction_id } = data as any;
 
     // Insert transaction
@@ -548,7 +549,7 @@ export const addWalletTransaction = createServerFn({ method: "POST" })
 export const getEmployeeMappings = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase } = context;
+    const { supabase: _sb } = context; const supabase: any = _sb;
 
     // Check admin role
     const { data: roles } = await supabase
@@ -577,7 +578,7 @@ export const getEmployeeMappings = createServerFn({ method: "GET" })
 export const upsertEmployeeMapping = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase } = context;
+    const { supabase: _sb } = context; const supabase: any = _sb;
     const { employee_id, cashier_employee_id, cashier_user_id, branch_id, active } = data as any;
 
     // Check admin role
@@ -617,7 +618,7 @@ export const upsertEmployeeMapping = createServerFn({ method: "POST" })
 export const getSyncAuditLog = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase } = context;
+    const { supabase: _sb } = context; const supabase: any = _sb;
 
     // Check admin role
     const { data: roles } = await supabase
@@ -647,7 +648,7 @@ export const getSyncAuditLog = createServerFn({ method: "GET" })
 export const updateIntegrationSettings = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context, data }) => {
-    const { supabase } = context;
+    const { supabase: _sb } = context; const supabase: any = _sb;
 
     // Check admin role
     const { data: roles } = await supabase
@@ -716,7 +717,7 @@ export const updateIntegrationSettings = createServerFn({ method: "POST" })
 export const getOfflineAttendanceQueue = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const { supabase: _sb, userId } = context; const supabase: any = _sb;
 
     const { data, error } = await supabase
       .from("offline_attendance_queue")
@@ -737,7 +738,7 @@ export const getOfflineAttendanceQueue = createServerFn({ method: "GET" })
 export const processOfflineQueue = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const { supabase: _sb, userId } = context; const supabase: any = _sb;
 
     const { data: queue, error: queueError } = await supabase
       .from("offline_attendance_queue")
@@ -809,7 +810,7 @@ export const processOfflineQueue = createServerFn({ method: "POST" })
 export const syncCommissionsFromCashier = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const { supabase: _sb, userId } = context; const supabase: any = _sb;
 
     const settings = await getIntegrationSettings(supabase);
     const envCreds = getCashierEnvCredentials();
@@ -838,7 +839,7 @@ export const syncCommissionsFromCashier = createServerFn({ method: "GET" })
 
       // Insert commissions as transactions
       for (const comm of result.data.commissions || []) {
-        await supabase.from("wallet_transactions").upsert(
+        await (supabase as any).from("wallet_transactions").upsert(
           {
             employee_id: userId,
             transaction_type: "commission",
@@ -867,7 +868,7 @@ export const syncCommissionsFromCashier = createServerFn({ method: "GET" })
 export const syncSalaryFromCashier = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const { supabase: _sb, userId } = context; const supabase: any = _sb;
 
     const settings = await getIntegrationSettings(supabase);
     const envCreds = getCashierEnvCredentials();
@@ -914,7 +915,7 @@ export const syncSalaryFromCashier = createServerFn({ method: "GET" })
 export const syncAdvancesFromCashier = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const { supabase: _sb, userId } = context; const supabase: any = _sb;
 
     const settings = await getIntegrationSettings(supabase);
     const envCreds = getCashierEnvCredentials();
@@ -940,7 +941,7 @@ export const syncAdvancesFromCashier = createServerFn({ method: "GET" })
       await logSyncActivity(supabase, "advance", "from_cashier", userId, null, result.data, "success");
 
       for (const adv of result.data.advances || []) {
-        await supabase.from("wallet_transactions").upsert(
+        await (supabase as any).from("wallet_transactions").upsert(
           {
             employee_id: userId,
             transaction_type: "advance",
@@ -969,7 +970,7 @@ export const syncAdvancesFromCashier = createServerFn({ method: "GET" })
 export const syncWithdrawalsFromCashier = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const { supabase: _sb, userId } = context; const supabase: any = _sb;
 
     const settings = await getIntegrationSettings(supabase);
     const envCreds = getCashierEnvCredentials();
@@ -995,7 +996,7 @@ export const syncWithdrawalsFromCashier = createServerFn({ method: "GET" })
       await logSyncActivity(supabase, "withdrawal", "from_cashier", userId, null, result.data, "success");
 
       for (const wd of result.data.withdrawals || []) {
-        await supabase.from("wallet_transactions").upsert(
+        await (supabase as any).from("wallet_transactions").upsert(
           {
             employee_id: userId,
             transaction_type: "withdrawal",
@@ -1024,7 +1025,7 @@ export const syncWithdrawalsFromCashier = createServerFn({ method: "GET" })
 export const getCashierEmployeeInfo = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
+    const { supabase: _sb, userId } = context; const supabase: any = _sb;
 
     const settings = await getIntegrationSettings(supabase);
     const envCreds = getCashierEnvCredentials();
@@ -1050,7 +1051,7 @@ export const getCashierEmployeeInfo = createServerFn({ method: "GET" })
 export const runFullSync = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase } = context;
+    const { supabase: _sb } = context; const supabase: any = _sb;
 
     const { data: roles } = await supabase
       .from("user_roles")

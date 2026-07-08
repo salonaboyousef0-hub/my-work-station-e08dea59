@@ -41,8 +41,8 @@ export function useAttendanceSync() {
     // Use processOfflineQueue server function
     const processQueue = useServerFn(processOfflineQueue);
     try {
-      const result = await processQueue();
-      if (result?.processed > 0) {
+      const result = (await processQueue()) as any;
+      if ((result?.processed ?? 0) > 0) {
         toast.success(`تم إرسال ${result.processed} عملية حضور محفوظة`);
         queryClient.invalidateQueries({ queryKey: ["attendance"] });
         queryClient.invalidateQueries({ queryKey: ["wallet-data"] });
@@ -77,7 +77,7 @@ export function useAttendanceSync() {
 
       // If offline, queue locally
       if (!isOnline()) {
-        await supabase.from("offline_attendance_queue").insert({
+        await (supabase as any).from("offline_attendance_queue").insert({
           employee_id: (await supabase.auth.getUser()).data.user?.id,
           action,
           action_time: actionTime.toISOString(),
@@ -94,7 +94,7 @@ export function useAttendanceSync() {
 
       // Try to sync
       try {
-        const result = await syncMutation.mutateAsync({
+        const result = await (syncMutation.mutateAsync as any)({
           data: {
             action,
             action_time: actionTime.toISOString(),
@@ -109,7 +109,7 @@ export function useAttendanceSync() {
           return { success: true };
         } else {
           // Queue locally if sync failed
-          await supabase.from("offline_attendance_queue").insert({
+          await (supabase as any).from("offline_attendance_queue").insert({
             employee_id: (await supabase.auth.getUser()).data.user?.id,
             action,
             action_time: actionTime.toISOString(),
