@@ -102,7 +102,7 @@ function IntegrationSettingsPage() {
           .eq("id", data.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase.from("integration_settings").insert({
+        const { error } = await (supabase as any).from("integration_settings").insert({
           cashier_url: form.cashier_url.trim(),
           cashier_publishable_key: form.cashier_publishable_key.trim(),
           stats_function_path: form.stats_function_path.trim() || DEFAULTS.stats_function_path,
