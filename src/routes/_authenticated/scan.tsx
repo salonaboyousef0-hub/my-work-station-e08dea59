@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Html5Qrcode } from "html5-qrcode";
 import { QrCode, LogIn, LogOut, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { writeCashierAttendance } from "@/lib/cashier";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/scan")({
