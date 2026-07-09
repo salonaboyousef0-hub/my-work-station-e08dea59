@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Html5Qrcode } from "html5-qrcode";
 import { QrCode, LogIn, LogOut, ArrowRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { writeCashierAttendance } from "@/lib/cashier";
 import { PageHeader } from "@/components/PageHeader";
 
 export const Route = createFileRoute("/_authenticated/scan")({
@@ -125,13 +126,17 @@ function ScanPage() {
       const pos = await getPosition();
       const today = new Date().toISOString().slice(0, 10);
 
-      // find today's row
-      const { data: existing } = await supabase
-        .from("attendance")
-        .select("id,check_in,check_out")
-        .eq("employee_id", u.user.id)
-        .eq("work_date", today)
-        .maybeSingle();
+      // find today's row + employee name (for cashier mirror)
+      const [{ data: existing }, { data: prof }] = await Promise.all([
+        supabase
+          .from("attendance")
+          .select("id,check_in,check_out")
+          .eq("employee_id", u.user.id)
+          .eq("work_date", today)
+          .maybeSingle(),
+        supabase.from("employee_profiles").select("full_name").eq("id", u.user.id).maybeSingle(),
+      ]);
+      const employeeName = (prof?.full_name ?? "").trim();
 
       if (!existing) {
         const { error } = await supabase.from("attendance").insert({
@@ -142,6 +147,7 @@ function ScanPage() {
           qr_token_id: tokenRow.id,
         });
         if (error) throw error;
+        if (employeeName) writeCashierAttendance(employeeName, "in").catch(() => {});
         setAction("in");
         setMode("done");
         setStatus("تم تسجيل الحضور بنجاح");
@@ -154,6 +160,7 @@ function ScanPage() {
           check_out_source: "qr",
         }).eq("id", existing.id);
         if (error) throw error;
+        if (employeeName) writeCashierAttendance(employeeName, "out").catch(() => {});
         setAction("out");
         setMode("done");
         setStatus("تم تسجيل الانصراف");
