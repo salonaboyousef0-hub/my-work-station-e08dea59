@@ -804,6 +804,13 @@ export type Database = {
         Args: { p_employee_id: string }
         Returns: undefined
       }
+      validate_qr_token: {
+        Args: { p_token: string }
+        Returns: {
+          expires_at: string
+          id: string
+        }[]
+      }
     }
     Enums: {
       app_role: "admin" | "manager" | "employee"
