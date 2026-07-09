@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedWalletHistoryRouteImport } from './routes/_authenticated/wallet-history'
 import { Route as AuthenticatedTrainingRouteImport } from './routes/_authenticated/training'
 import { Route as AuthenticatedShiftsRouteImport } from './routes/_authenticated/shifts'
 import { Route as AuthenticatedServiceLogRouteImport } from './routes/_authenticated/service-log'
@@ -54,12 +53,6 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedWalletHistoryRoute =
-  AuthenticatedWalletHistoryRouteImport.update({
-    id: '/wallet-history',
-    path: '/wallet-history',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
 const AuthenticatedTrainingRoute = AuthenticatedTrainingRouteImport.update({
   id: '/training',
   path: '/training',
@@ -222,7 +215,6 @@ export interface FileRoutesByFullPath {
   '/service-log': typeof AuthenticatedServiceLogRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/training': typeof AuthenticatedTrainingRoute
-  '/wallet-history': typeof AuthenticatedWalletHistoryRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/employees': typeof AuthenticatedAdminEmployeesRoute
@@ -252,7 +244,6 @@ export interface FileRoutesByTo {
   '/service-log': typeof AuthenticatedServiceLogRoute
   '/shifts': typeof AuthenticatedShiftsRoute
   '/training': typeof AuthenticatedTrainingRoute
-  '/wallet-history': typeof AuthenticatedWalletHistoryRoute
   '/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/admin/content': typeof AuthenticatedAdminContentRoute
   '/admin/employees': typeof AuthenticatedAdminEmployeesRoute
@@ -285,7 +276,6 @@ export interface FileRoutesById {
   '/_authenticated/service-log': typeof AuthenticatedServiceLogRoute
   '/_authenticated/shifts': typeof AuthenticatedShiftsRoute
   '/_authenticated/training': typeof AuthenticatedTrainingRoute
-  '/_authenticated/wallet-history': typeof AuthenticatedWalletHistoryRoute
   '/_authenticated/admin/activity': typeof AuthenticatedAdminActivityRoute
   '/_authenticated/admin/content': typeof AuthenticatedAdminContentRoute
   '/_authenticated/admin/employees': typeof AuthenticatedAdminEmployeesRoute
@@ -318,7 +308,6 @@ export interface FileRouteTypes {
     | '/service-log'
     | '/shifts'
     | '/training'
-    | '/wallet-history'
     | '/admin/activity'
     | '/admin/content'
     | '/admin/employees'
@@ -348,7 +337,6 @@ export interface FileRouteTypes {
     | '/service-log'
     | '/shifts'
     | '/training'
-    | '/wallet-history'
     | '/admin/activity'
     | '/admin/content'
     | '/admin/employees'
@@ -380,7 +368,6 @@ export interface FileRouteTypes {
     | '/_authenticated/service-log'
     | '/_authenticated/shifts'
     | '/_authenticated/training'
-    | '/_authenticated/wallet-history'
     | '/_authenticated/admin/activity'
     | '/_authenticated/admin/content'
     | '/_authenticated/admin/employees'
@@ -420,13 +407,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/wallet-history': {
-      id: '/_authenticated/wallet-history'
-      path: '/wallet-history'
-      fullPath: '/wallet-history'
-      preLoaderRoute: typeof AuthenticatedWalletHistoryRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/training': {
       id: '/_authenticated/training'
@@ -658,7 +638,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedServiceLogRoute: typeof AuthenticatedServiceLogRoute
   AuthenticatedShiftsRoute: typeof AuthenticatedShiftsRoute
   AuthenticatedTrainingRoute: typeof AuthenticatedTrainingRoute
-  AuthenticatedWalletHistoryRoute: typeof AuthenticatedWalletHistoryRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -679,7 +658,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedServiceLogRoute: AuthenticatedServiceLogRoute,
   AuthenticatedShiftsRoute: AuthenticatedShiftsRoute,
   AuthenticatedTrainingRoute: AuthenticatedTrainingRoute,
-  AuthenticatedWalletHistoryRoute: AuthenticatedWalletHistoryRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

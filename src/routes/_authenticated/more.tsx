@@ -1,6 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
-import { Calendar, Plane, Sparkles, Target, Star, Megaphone, GraduationCap, Package, Wallet, ChartBar as BarChart3, Bell, MessageSquare, LogOut, ChevronLeft, Receipt } from "lucide-react";
+import {
+  Calendar, Plane, Sparkles, Target, Star, Megaphone, GraduationCap, Package,
+  Wallet, BarChart3, Bell, MessageSquare, LogOut, ChevronLeft,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { PageHeader } from "@/components/PageHeader";
@@ -23,7 +26,6 @@ const SECTIONS: { title: string; items: { to: any; label: string; icon: any; cls
     title: "الأداء والمكافآت",
     items: [
       { to: "/financial", label: "حسابي المالي", icon: Wallet, cls: "bg-success/15 text-success" },
-      { to: "/wallet-history", label: "سجل المحفظة", icon: Receipt, cls: "bg-primary/10 text-primary" },
       { to: "/performance", label: "أدائي", icon: BarChart3, cls: "bg-primary/10 text-primary" },
       { to: "/goals", label: "الأهداف والمكافآت", icon: Target, cls: "bg-warning/15 text-warning" },
       { to: "/evaluations", label: "تقييمي", icon: Star, cls: "bg-info/10 text-info" },

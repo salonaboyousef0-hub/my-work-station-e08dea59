@@ -112,12 +112,15 @@ function ScanPage() {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("غير مصرح");
 
-      // validate token via SECURITY DEFINER RPC (raw tokens are not readable by employees)
-      const { data: validated, error: tokenErr } = await supabase
-        .rpc("validate_qr_token", { p_token: token });
+      // validate token
+      const { data: tokenRow, error: tokenErr } = await supabase
+        .from("attendance_qr_tokens")
+        .select("id,is_active,expires_at")
+        .eq("token", token)
+        .maybeSingle();
       if (tokenErr) throw tokenErr;
-      const tokenRow = Array.isArray(validated) ? validated[0] : validated;
-      if (!tokenRow) throw new Error("الكود غير صالح أو منتهي");
+      if (!tokenRow || !tokenRow.is_active) throw new Error("الكود غير صالح أو معطل");
+      if (tokenRow.expires_at && new Date(tokenRow.expires_at) < new Date()) throw new Error("انتهت صلاحية الكود");
 
       const pos = await getPosition();
       const today = new Date().toISOString().slice(0, 10);
