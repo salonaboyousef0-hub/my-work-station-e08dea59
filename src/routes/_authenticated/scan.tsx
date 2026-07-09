@@ -147,6 +147,7 @@ function ScanPage() {
           qr_token_id: tokenRow.id,
         });
         if (error) throw error;
+        if (employeeName) writeCashierAttendance(employeeName, "in").catch(() => {});
         setAction("in");
         setMode("done");
         setStatus("تم تسجيل الحضور بنجاح");
