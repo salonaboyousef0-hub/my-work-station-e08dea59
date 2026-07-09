@@ -160,6 +160,7 @@ function ScanPage() {
           check_out_source: "qr",
         }).eq("id", existing.id);
         if (error) throw error;
+        if (employeeName) writeCashierAttendance(employeeName, "out").catch(() => {});
         setAction("out");
         setMode("done");
         setStatus("تم تسجيل الانصراف");
