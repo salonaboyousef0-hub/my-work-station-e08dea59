@@ -1,0 +1,1 @@
+ALTER TABLE public.employee_profiles ADD COLUMN IF NOT EXISTS cashier_name TEXT;
