@@ -6,11 +6,15 @@ import { Loader2, Scissors } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
+  validateSearch: (s: Record<string, unknown>) => ({
+    next: typeof s.next === "string" && s.next.startsWith("/") && !s.next.startsWith("//") ? s.next : "",
+  }),
   head: () => ({ meta: [{ title: "تسجيل الدخول - تطبيق الموظفين" }] }),
   component: AuthPage,
 });
 
 function AuthPage() {
+  const { next } = Route.useSearch();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -23,12 +27,19 @@ function AuthPage() {
     supabase.auth.getUser().then(({ data }) => {
       if (data.user) routeAfterAuth();
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function routeAfterAuth() {
     const { data: u } = await supabase.auth.getUser();
     if (!u.user) {
       window.location.href = "/auth";
+      return;
+    }
+
+    // Preserve OAuth consent (or any other) return target on successful auth.
+    if (next) {
+      window.location.href = next;
       return;
     }
 
@@ -49,7 +60,7 @@ function AuthPage() {
           email,
           password,
           options: {
-            emailRedirectTo: window.location.origin,
+            emailRedirectTo: next ? `${window.location.origin}${next}` : window.location.origin,
             data: { full_name: fullName, phone, job_title: jobTitle },
           },
         });
