@@ -222,6 +222,7 @@ export type Database = {
           avatar_url: string | null
           balance: number
           cashier_employee_id: string | null
+          cashier_name: string | null
           created_at: string
           employee_code: string
           full_name: string
@@ -236,6 +237,7 @@ export type Database = {
           avatar_url?: string | null
           balance?: number
           cashier_employee_id?: string | null
+          cashier_name?: string | null
           created_at?: string
           employee_code?: string
           full_name?: string
@@ -250,6 +252,7 @@ export type Database = {
           avatar_url?: string | null
           balance?: number
           cashier_employee_id?: string | null
+          cashier_name?: string | null
           created_at?: string
           employee_code?: string
           full_name?: string

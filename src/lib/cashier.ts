@@ -74,6 +74,27 @@ export async function fetchCashierWithdrawals(name: string): Promise<CashierWith
   return (data as CashierWithdrawal[]) ?? [];
 }
 
+export type CashierAttendance = {
+  id?: string | number;
+  employee_name?: string;
+  attendance_date?: string;
+  check_in?: string | null;
+  check_out?: string | null;
+  [k: string]: any;
+};
+
+export async function fetchCashierAttendance(name: string): Promise<CashierAttendance[]> {
+  if (!name) return [];
+  const { data, error } = await cashierClient
+    .from("attendance")
+    .select("*")
+    .eq("employee_name", name)
+    .order("attendance_date", { ascending: false })
+    .limit(60);
+  logErr("attendance:list", error);
+  return (data as CashierAttendance[]) ?? [];
+}
+
 export type CashierAttendanceWrite = {
   employee_name: string;
   attendance_date: string; // YYYY-MM-DD

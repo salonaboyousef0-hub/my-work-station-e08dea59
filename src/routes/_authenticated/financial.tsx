@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getMyProfile, getTransactions } from "@/lib/queries";
 import { PageHeader } from "@/components/PageHeader";
 import { TxRow } from "@/routes/_authenticated/home";
-import { useCashierByName } from "@/hooks/useCashierByName";
+import { useCashierData } from "@/hooks/useCashierData";
 
 export const Route = createFileRoute("/_authenticated/financial")({
   head: () => ({ meta: [{ title: "الحساب المالي" }] }),
@@ -17,7 +17,7 @@ function sumBy(arr: any[], type: string) {
 function FinancialPage() {
   const { data: profile } = useQuery({ queryKey: ["profile"], queryFn: getMyProfile });
   const { data: tx = [] } = useQuery({ queryKey: ["tx"], queryFn: getTransactions });
-  const cashier = useCashierByName(profile?.full_name);
+  const cashier = useCashierData();
 
   const earnings = sumBy(tx, "earning");
   const advances = sumBy(tx, "advance");
@@ -46,61 +46,97 @@ function FinancialPage() {
         <section className="space-y-3">
           <h2 className="text-lg font-bold flex items-center justify-between">
             <span>من الكاشير (مباشر)</span>
-            <span className="text-xs text-muted-foreground font-normal">تحديث كل 10 ثوانٍ</span>
+            <span className="text-xs text-muted-foreground font-normal">
+              {cashier.isLinked ? `${cashier.cashierName} · تحديث كل 10 ثوانٍ` : "غير مربوط"}
+            </span>
           </h2>
-          <div className="grid grid-cols-3 gap-3">
-            <Tile label="أرباح الكاشير" value={cashier.earnings} tone="success" />
-            <Tile label="السحوبات" value={cashier.totalWithdrawn} tone="warning" />
-            <Tile label="الصافي" value={cashier.netBalance} tone="primary" />
-          </div>
 
-          <div className="bg-card rounded-2xl shadow-card border border-border">
-            <div className="px-4 py-3 border-b border-border font-semibold text-sm">آخر السحوبات</div>
-            {cashier.withdrawals.length === 0 && (
-              <p className="text-center text-sm text-muted-foreground py-6">لا توجد سحوبات</p>
-            )}
-            <ul className="divide-y divide-border">
-              {cashier.withdrawals.slice(0, 10).map((w, i) => (
-                <li key={w.id ?? i} className="px-4 py-3 flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    {(w.created_at ?? w.date ?? "").toString().slice(0, 10)}
-                  </span>
-                  <span className="font-bold text-warning">
-                    {Number(w.amount ?? 0).toLocaleString("ar-EG")} ج.م
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </div>
+          {!cashier.isLinked && (
+            <div className="bg-warning/10 border border-warning/30 rounded-2xl p-4 text-sm text-warning-foreground">
+              لم يتم ربط حسابك باسم في نظام الكاشير بعد. يرجى التواصل مع الإدارة لضبط
+              <b> اسم الكاشير </b>
+              الخاص بك من صفحة إدارة الموظفين.
+            </div>
+          )}
 
-          <div className="bg-card rounded-2xl shadow-card border border-border">
-            <div className="px-4 py-3 border-b border-border font-semibold text-sm">آخر العمليات</div>
-            {cashier.operations.length === 0 && (
-              <p className="text-center text-sm text-muted-foreground py-6">لا توجد عمليات</p>
-            )}
-            <ul className="divide-y divide-border">
-              {cashier.operations.slice(0, 15).map((o, i) => {
-                const price = Number(o.price ?? o.amount ?? o.total ?? 0);
-                const isBarber = o.barber === profile?.full_name;
-                const role = isBarber ? "حلاق" : o.assistant === profile?.full_name ? "مساعد" : "";
-                return (
-                  <li key={o.id ?? i} className="px-4 py-3 flex items-center justify-between gap-2 text-sm">
-                    <div className="min-w-0">
-                      <p className="font-semibold truncate">
-                        {o.service ?? o.service_name ?? "خدمة"}
-                      </p>
-                      <p className="text-xs text-muted-foreground truncate">
-                        {(o.customer ?? o.customer_name ?? "")} · {role}
-                      </p>
-                    </div>
-                    <span className="font-bold text-primary shrink-0">
-                      {price.toLocaleString("ar-EG")} ج.م
-                    </span>
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
+          {cashier.isLinked && (
+            <>
+              <div className="grid grid-cols-3 gap-3">
+                <Tile label="إجمالي الدخل" value={cashier.earnings} tone="success" />
+                <Tile label="السحوبات" value={cashier.totalWithdrawn} tone="warning" />
+                <Tile label="الصافي" value={cashier.netBalance} tone="primary" />
+              </div>
+
+              <div className="bg-card rounded-2xl shadow-card border border-border">
+                <div className="px-4 py-3 border-b border-border font-semibold text-sm">آخر السحوبات</div>
+                {cashier.withdrawals.length === 0 && (
+                  <p className="text-center text-sm text-muted-foreground py-6">لا توجد سحوبات</p>
+                )}
+                <ul className="divide-y divide-border">
+                  {cashier.withdrawals.slice(0, 10).map((w, i) => (
+                    <li key={w.id ?? i} className="px-4 py-3 flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">
+                        {(w.created_at ?? w.date ?? "").toString().slice(0, 10)}
+                      </span>
+                      <span className="font-bold text-warning">
+                        {Number(w.amount ?? 0).toLocaleString("ar-EG")} ج.م
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="bg-card rounded-2xl shadow-card border border-border">
+                <div className="px-4 py-3 border-b border-border font-semibold text-sm">سجل الحضور من الكاشير</div>
+                {cashier.attendance.length === 0 && (
+                  <p className="text-center text-sm text-muted-foreground py-6">لا يوجد سجل حضور</p>
+                )}
+                <ul className="divide-y divide-border">
+                  {cashier.attendance.slice(0, 15).map((a, i) => (
+                    <li key={a.id ?? i} className="px-4 py-3 flex items-center justify-between gap-2 text-sm">
+                      <span className="font-semibold">
+                        {(a.attendance_date ?? "").toString().slice(0, 10)}
+                      </span>
+                      <span className="text-xs text-muted-foreground" dir="ltr">
+                        {a.check_in ? new Date(a.check_in).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "--:--"}
+                        {" → "}
+                        {a.check_out ? new Date(a.check_out).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "--:--"}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              <div className="bg-card rounded-2xl shadow-card border border-border">
+                <div className="px-4 py-3 border-b border-border font-semibold text-sm">آخر العمليات</div>
+                {cashier.operations.length === 0 && (
+                  <p className="text-center text-sm text-muted-foreground py-6">لا توجد عمليات</p>
+                )}
+                <ul className="divide-y divide-border">
+                  {cashier.operations.slice(0, 15).map((o, i) => {
+                    const price = Number(o.price ?? o.amount ?? o.total ?? 0);
+                    const isBarber = o.barber === cashier.cashierName;
+                    const role = isBarber ? "حلاق" : o.assistant === cashier.cashierName ? "مساعد" : "";
+                    return (
+                      <li key={o.id ?? i} className="px-4 py-3 flex items-center justify-between gap-2 text-sm">
+                        <div className="min-w-0">
+                          <p className="font-semibold truncate">
+                            {o.service ?? o.service_name ?? "خدمة"}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {(o.customer ?? o.customer_name ?? "")} · {role}
+                          </p>
+                        </div>
+                        <span className="font-bold text-primary shrink-0">
+                          {price.toLocaleString("ar-EG")} ج.م
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </>
+          )}
         </section>
 
         <section>
