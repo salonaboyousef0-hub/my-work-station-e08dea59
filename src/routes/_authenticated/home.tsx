@@ -1,9 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { LogOut, Bell, Wallet, CheckCircle2, XCircle, ArrowLeft, ShieldCheck } from "lucide-react";
+import { LogOut, Bell, Wallet, CheckCircle2, XCircle, ArrowLeft, ShieldCheck, CalendarClock, User, Scissors } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { getMyProfile, getMonthAttendanceStats, getTransactions, getNotifications, getMyRoles } from "@/lib/queries";
+import { getMyProfile, getMonthAttendanceStats, getTransactions, getNotifications, getMyRoles, getNextBooking } from "@/lib/queries";
 import { useCashierStats } from "@/hooks/useCashierStats";
 import { toast } from "sonner";
 
