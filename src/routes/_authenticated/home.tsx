@@ -114,6 +114,25 @@ function HomePage() {
         </div>
         <p className="text-xs text-muted-foreground text-center -mt-2">من أصل {daysInMonth} يوم في الشهر الحالي</p>
 
+        {/* Next booking */}
+        <Link to="/bookings" className="block bg-card rounded-2xl shadow-card border border-border p-4 active:bg-muted">
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-bold flex items-center gap-2"><CalendarClock className="size-4 text-primary" /> أقرب حجز</p>
+            <ArrowLeft className="size-4 text-muted-foreground" />
+          </div>
+          {nextBooking ? (
+            <div className="mt-2 space-y-1">
+              <p className="text-lg font-bold text-primary">
+                {new Date(nextBooking.starts_at).toLocaleString("ar-EG", { weekday: "short", hour: "2-digit", minute: "2-digit" })}
+              </p>
+              <p className="text-sm flex items-center gap-2"><User className="size-4 text-muted-foreground" /> {nextBooking.customer_name ?? "زبون"}</p>
+              <p className="text-sm flex items-center gap-2"><Scissors className="size-4 text-muted-foreground" /> {nextBooking.service_name ?? "خدمة"}</p>
+            </div>
+          ) : (
+            <p className="text-xs text-muted-foreground mt-1">لا توجد حجوزات قادمة</p>
+          )}
+        </Link>
+
         {cashier?.ok && (
           <section>
             <div className="flex items-center justify-between mb-3">
