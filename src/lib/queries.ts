@@ -142,3 +142,37 @@ export async function getMyAssets() {
   if (error) throw error;
   return data ?? [];
 }
+
+export async function getMyBookings(range: "today" | "week" | "upcoming" = "week") {
+  const id = await uid();
+  const now = new Date();
+  let from = new Date(now); from.setHours(0, 0, 0, 0);
+  let to: Date | null = null;
+  if (range === "today") {
+    to = new Date(from); to.setDate(to.getDate() + 1);
+  } else if (range === "week") {
+    to = new Date(from); to.setDate(to.getDate() + 7);
+  }
+  let q = supabase.from("bookings").select("*")
+    .eq("employee_id", id)
+    .gte("starts_at", from.toISOString())
+    .order("starts_at", { ascending: true });
+  if (to) q = q.lt("starts_at", to.toISOString());
+  const { data, error } = await q;
+  if (error) throw error;
+  return data ?? [];
+}
+
+export async function getNextBooking() {
+  const id = await uid();
+  const { data, error } = await supabase.from("bookings").select("*")
+    .eq("employee_id", id)
+    .gte("starts_at", new Date().toISOString())
+    .in("status", ["scheduled", "confirmed"])
+    .order("starts_at", { ascending: true })
+    .limit(1)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
