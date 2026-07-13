@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Calendar, Plane, Sparkles, Target, Star, Megaphone, GraduationCap, Package,
-  Wallet, BarChart3, Bell, MessageSquare, LogOut, ChevronLeft,
+  Wallet, BarChart3, Bell, MessageSquare, LogOut, ChevronLeft, CalendarClock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -17,6 +17,7 @@ const SECTIONS: { title: string; items: { to: any; label: string; icon: any; cls
   {
     title: "العمل والجدولة",
     items: [
+      { to: "/bookings", label: "حجوزاتي", icon: CalendarClock, cls: "bg-primary/10 text-primary" },
       { to: "/shifts", label: "جدول الشيفتات", icon: Calendar, cls: "bg-primary/10 text-primary" },
       { to: "/leave", label: "طلبات الإجازة", icon: Plane, cls: "bg-info/10 text-info" },
       { to: "/service-log", label: "تسجيل الخدمات", icon: Sparkles, cls: "bg-warning/15 text-warning" },

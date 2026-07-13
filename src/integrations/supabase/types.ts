@@ -173,6 +173,71 @@ export type Database = {
         }
         Relationships: []
       }
+      bookings: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          customer_name: string | null
+          customer_phone: string | null
+          employee_id: string
+          ends_at: string | null
+          external_booking_id: string | null
+          id: string
+          notes: string | null
+          price: number | null
+          service_id: string | null
+          service_name: string | null
+          source: string
+          starts_at: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          employee_id: string
+          ends_at?: string | null
+          external_booking_id?: string | null
+          id?: string
+          notes?: string | null
+          price?: number | null
+          service_id?: string | null
+          service_name?: string | null
+          source?: string
+          starts_at: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          customer_name?: string | null
+          customer_phone?: string | null
+          employee_id?: string
+          ends_at?: string | null
+          external_booking_id?: string | null
+          id?: string
+          notes?: string | null
+          price?: number | null
+          service_id?: string | null
+          service_name?: string | null
+          source?: string
+          starts_at?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employee_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employee_assets: {
         Row: {
           asset_name: string
