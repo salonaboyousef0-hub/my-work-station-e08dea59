@@ -17,6 +17,7 @@ const SECTIONS: { title: string; items: { to: any; label: string; icon: any; cls
   {
     title: "العمل والجدولة",
     items: [
+      { to: "/bookings", label: "حجوزاتي", icon: CalendarClock, cls: "bg-primary/10 text-primary" },
       { to: "/shifts", label: "جدول الشيفتات", icon: Calendar, cls: "bg-primary/10 text-primary" },
       { to: "/leave", label: "طلبات الإجازة", icon: Plane, cls: "bg-info/10 text-info" },
       { to: "/service-log", label: "تسجيل الخدمات", icon: Sparkles, cls: "bg-warning/15 text-warning" },
