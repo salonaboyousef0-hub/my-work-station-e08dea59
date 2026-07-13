@@ -21,6 +21,7 @@ function HomePage() {
   const { data: notifs = [] } = useQuery({ queryKey: ["notifs"], queryFn: getNotifications });
   const { data: roles = [] } = useQuery({ queryKey: ["my-roles"], queryFn: getMyRoles });
   const { data: cashier } = useCashierStats();
+  const { data: nextBooking } = useQuery({ queryKey: ["next-booking"], queryFn: getNextBooking });
   const isStaff = roles.includes("admin") || roles.includes("manager");
 
   useEffect(() => {
