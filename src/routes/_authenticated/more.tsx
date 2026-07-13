@@ -2,7 +2,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Calendar, Plane, Sparkles, Target, Star, Megaphone, GraduationCap, Package,
-  Wallet, BarChart3, Bell, MessageSquare, LogOut, ChevronLeft,
+  Wallet, BarChart3, Bell, MessageSquare, LogOut, ChevronLeft, CalendarClock,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
