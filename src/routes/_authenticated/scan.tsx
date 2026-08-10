@@ -33,6 +33,7 @@ function parsePayload(text: string): string | null {
 
 function ScanPage() {
   const navigate = useNavigate();
+  const qrCheck = useServerFn(qrCheckAttendance);
   const [mode, setMode] = useState<Mode>("idle");
   const [status, setStatus] = useState<string>("");
   const [action, setAction] = useState<"in" | "out" | null>(null);
