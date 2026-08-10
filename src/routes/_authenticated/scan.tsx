@@ -113,53 +113,26 @@ function ScanPage() {
       const { data: u } = await supabase.auth.getUser();
       if (!u.user) throw new Error("غير مصرح");
 
-      // validate token
-      const { data: tokenRow, error: tokenErr } = await supabase
-        .from("attendance_qr_tokens")
-        .select("id,is_active,expires_at")
-        .eq("token", token)
-        .maybeSingle();
-      if (tokenErr) throw tokenErr;
-      if (!tokenRow || !tokenRow.is_active) throw new Error("الكود غير صالح أو معطل");
-      if (tokenRow.expires_at && new Date(tokenRow.expires_at) < new Date()) throw new Error("انتهت صلاحية الكود");
-
       const pos = await getPosition();
-      const today = new Date().toISOString().slice(0, 10);
-
-      // find today's row + employee name (for cashier mirror)
-      const [{ data: existing }, { data: prof }] = await Promise.all([
-        supabase
-          .from("attendance")
-          .select("id,check_in,check_out")
-          .eq("employee_id", u.user.id)
-          .eq("work_date", today)
-          .maybeSingle(),
-        supabase.from("employee_profiles").select("full_name").eq("id", u.user.id).maybeSingle(),
-      ]);
+      const { data: prof } = await supabase
+        .from("employee_profiles").select("full_name").eq("id", u.user.id).maybeSingle();
       const employeeName = (prof?.full_name ?? "").trim();
 
-      if (!existing) {
-        const { error } = await supabase.from("attendance").insert({
-          employee_id: u.user.id,
-          check_in_lat: pos?.coords.latitude ?? null,
-          check_in_lng: pos?.coords.longitude ?? null,
-          check_in_source: "qr",
-          qr_token_id: tokenRow.id,
-        });
-        if (error) throw error;
+      const res = await qrCheck({
+        data: {
+          token,
+          lat: pos?.coords.latitude ?? null,
+          lng: pos?.coords.longitude ?? null,
+        },
+      });
+
+      if (res.action === "in") {
         if (employeeName) writeCashierAttendance(employeeName, "in").catch(() => {});
         setAction("in");
         setMode("done");
         setStatus("تم تسجيل الحضور بنجاح");
         toast.success("تم تسجيل الحضور");
-      } else if (!existing.check_out) {
-        const { error } = await supabase.from("attendance").update({
-          check_out: new Date().toISOString(),
-          check_out_lat: pos?.coords.latitude ?? null,
-          check_out_lng: pos?.coords.longitude ?? null,
-          check_out_source: "qr",
-        }).eq("id", existing.id);
-        if (error) throw error;
+      } else if (res.action === "out") {
         if (employeeName) writeCashierAttendance(employeeName, "out").catch(() => {});
         setAction("out");
         setMode("done");
